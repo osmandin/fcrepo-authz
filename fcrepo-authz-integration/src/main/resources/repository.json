@@ -1,0 +1,28 @@
+{
+    "name" : "repo",
+    "jndiName" : "",
+    "workspaces" : {
+        "predefined" : [],
+        "default" : "default",
+        "allowCreation" : true
+    },
+    "storage" : {
+        "cacheName" : "FedoraRepository",
+        "cacheConfiguration" : "config/infinispan/basic/infinispan.xml",
+        "binaryStorage" : {
+            "type" : "cache",
+            "dataCacheName" : "FedoraRepositoryBinaryData",
+            "metadataCacheName" : "FedoraRepository"
+        }
+    },
+    "security" : {
+        "anonymous" : {
+            "roles" : ["readonly","readwrite","admin"],
+            "useOnFailedLogin" : false
+        },
+        "providers" : [
+            { "classname" : "org.fcrepo.auth.FedoraUserAuthenticationProvider" }
+        ]
+    },
+	"node-types" : ["fedora-node-types.cnd"]
+}

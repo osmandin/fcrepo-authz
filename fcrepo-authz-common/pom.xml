@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.fcrepo</groupId>
+		<artifactId>fcrepo-authz</artifactId>
+		<version>4.0.0-alpha-2-SNAPSHOT</version>
+	</parent>
+	<artifactId>fcrepo-authz-common</artifactId>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.modeshape</groupId>
+			<artifactId>modeshape-web-jcr</artifactId>
+			<version>${modeshape.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- test gear -->
+		<dependency>
+			<groupId>org.fcrepo</groupId>
+			<artifactId>fcrepo-kernel</artifactId>
+			<version>${project.version}</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.fcrepo</groupId>
+			<artifactId>fcrepo-http-commons</artifactId>
+			<version>${project.version}</version>
+			<classifier>tests</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<!-- Package tests in a JAR for reuse. See: https://maven.apache.org/guides/mini/guide-attached-tests.html -->
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

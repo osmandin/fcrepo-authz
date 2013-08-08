@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+	xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/2.0/access_control-xacml-2.0-policy-schema-os.xsd
+						urn:oasis:names:tc:xacml:2.0:context:schema:os http://docs.oasis-open.org/xacml/2.0/access_control-xacml-2.0-context-schema-os.xsd"
+	PolicyId="metadata-patron-role"
+	RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+	<Description>This policy permits appropriate access for users in the metadata-patron role.</Description>
+	<Target>
+		<Subjects>
+			<Subject>
+				<SubjectMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">info:fedora-model/definitions/rbac#metadata-patron</AttributeValue>
+					<SubjectAttributeDesignator
+						AttributeId="info:fedora-model/definitions/rbac#access-role"
+						DataType="http://www.w3.org/2001/XMLSchema#string" />
+				</SubjectMatch>
+			</Subject>
+		</Subjects>
+	</Target>
+	<Rule RuleId="DenyPropertyRead" Effect="Deny">
+		<Description>Denies access to properties that are restricted to.</Description>
+		<Target>
+			<Resources>
+				<Resource>
+					<ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
+						<ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#dateTime"
+							AttributeId="info:fedora-model/definitions/#embargo-until" />
+					</ResourceMatch>
+				</Resource>
+			</Resources>
+			<Actions>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:jcr:names:jcr:2.0:permission:id" />
+					</ActionMatch>
+				</Action>
+			</Actions>
+		</Target>
+		<Condition>
+			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:all-of">
+				<Function FunctionId="urn:oasis:names:tc:xacml:1.0:function:dateTime-greater-than" />
+				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:dateTime-one-and-only">
+					<EnvironmentAttributeDesignator
+						DataType="http://www.w3.org/2001/XMLSchema#dateTime"
+						AttributeId="urn:oasis:names:tc:xacml:1.0:environment:current-dateTime" />
+				</Apply>
+				<ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#dateTime"
+					AttributeId="http://cdr.unc.edu/definitions/acl#embargo-until" />
+			</Apply>
+		</Condition>
+	</Rule>
+	<Rule RuleId="PermitDatastreamAPIA" Effect="Permit">
+		<Description>Permits read access to descriptive data streams.</Description>
+		<Target>
+			<Actions>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" />
+					</ActionMatch>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:api-a</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:api" />
+					</ActionMatch>
+				</Action>
+			</Actions>
+		</Target>
+		<Condition>
+		  <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+			<Apply
+				FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">METADATA</AttributeValue>
+				</Apply>
+				<ResourceAttributeDesignator MustBePresent="true"
+					AttributeId="http://cdr.unc.edu/definitions/acl#data-access-category"
+					DataType="http://www.w3.org/2001/XMLSchema#string" />
+			</Apply>
+			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:all-of">
+				<Function FunctionId="urn:oasis:names:tc:xacml:1.0:function:dateTime-greater-than" />
+				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:dateTime-one-and-only">
+					<EnvironmentAttributeDesignator
+						DataType="http://www.w3.org/2001/XMLSchema#dateTime"
+						AttributeId="urn:oasis:names:tc:xacml:1.0:environment:current-dateTime" />
+				</Apply>
+				<ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#dateTime"
+					AttributeId="http://cdr.unc.edu/definitions/acl#embargo-until" />
+			</Apply>
+		  </Apply>
+		</Condition>
+	</Rule>
+</Policy>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+	xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/2.0/access_control-xacml-2.0-policy-schema-os.xsd
+						urn:oasis:names:tc:xacml:2.0:context:schema:os http://docs.oasis-open.org/xacml/2.0/access_control-xacml-2.0-context-schema-os.xsd"
+	PolicyId="processor-role"
+	RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+	<Description>This policy permits appropriate access for users in the processor role.</Description>
+	<Target>
+		<Subjects>
+			<Subject>
+				<SubjectMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">http://cdr.unc.edu/definitions/roles#processor</AttributeValue>
+					<SubjectAttributeDesignator
+						AttributeId="http://cdr.unc.edu/definitions/acl#user-role"
+						DataType="http://www.w3.org/2001/XMLSchema#string" />
+				</SubjectMatch>
+			</Subject>
+		</Subjects>
+	</Target>
+	<Rule RuleId="ReadAnything" Effect="Permit">
+		<Description>Permits access to the XML object description.</Description>
+		<Target>
+			<Actions>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" />
+					</ActionMatch>
+				</Action>
+			</Actions>
+		</Target>
+	</Rule>
+	<Rule RuleId="ModifyObjects" Effect="Permit">
+		<Description>Permits the user to modify object attributes, such as label.</Description>
+		<Target>
+			<Actions>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyObject</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" />
+					</ActionMatch>
+				</Action>
+			</Actions>
+		</Target>
+	</Rule>
+	<Rule RuleId="AddModifyPurgeDescriptiveAndOriginalDatastreams" Effect="Permit">
+		<Description>Permits the user to update the datastreams for description, original data and containment.</Description>
+		<Target>
+			<Actions>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-addDatastream</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" />
+					</ActionMatch>
+				</Action>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyDatastreamByValue</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" />
+					</ActionMatch>
+				</Action>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-modifyDatastreamByReference</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" />
+					</ActionMatch>
+				</Action>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-purgeDatastreamByValue</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" />
+					</ActionMatch>
+				</Action>
+			</Actions>
+		</Target>
+		<Condition>
+			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+				<Apply
+					FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ORIGINAL</AttributeValue>
+					</Apply>
+					<ResourceAttributeDesignator MustBePresent="true"
+						AttributeId="http://cdr.unc.edu/definitions/acl#data-access-category"
+						DataType="http://www.w3.org/2001/XMLSchema#string" />
+				</Apply>
+				<Apply
+					FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MD_DESCRIPTIVE</AttributeValue>
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MD_CONTENTS</AttributeValue>
+					</Apply>
+					<ResourceAttributeDesignator MustBePresent="true"
+						AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id"
+						DataType="http://www.w3.org/2001/XMLSchema#string" />
+				</Apply>
+				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+						<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+							<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">MD_EVENTS</AttributeValue>
+						</Apply>
+						<ResourceAttributeDesignator MustBePresent="true"
+							AttributeId="urn:fedora:names:fedora:2.1:resource:datastream:id"
+							DataType="http://www.w3.org/2001/XMLSchema#string" />
+					</Apply>
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+						<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+							<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+								<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-purgeDatastreamByValue</AttributeValue>
+							</Apply>
+							<ActionAttributeDesignator
+								DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" />
+						</Apply>
+					</Apply>
+				</Apply>
+			</Apply>
+		</Condition>
+	</Rule>
+	<Rule RuleId="AddPurgeRelationships" Effect="Permit">
+		<Description>Permits the user to add new relationships between the parent and child.</Description>
+		<Target>
+			<Actions>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-addRelationship</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" />
+					</ActionMatch>
+				</Action>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-purgeRelationship</AttributeValue>
+						<ActionAttributeDesignator
+							DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:fedora:names:fedora:2.1:action:id" />
+					</ActionMatch>
+				</Action>
+			</Actions>
+		</Target>
+		<Condition>
+			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:anyURI-at-least-one-member-of">
+				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:anyURI-bag">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">http://cdr.unc.edu/definitions/1.0/base-model.xml#contains</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">http://cdr.unc.edu/definitions/1.0/base-model.xml#isPublished</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">http://cdr.unc.edu/definitions/1.0/base-model.xml#allowIndexing</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">http://cdr.unc.edu/definitions/1.0/base-model.xml#defaultWebData</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">http://cdr.unc.edu/definitions/1.0/base-model.xml#defaultWebObject</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">http://cdr.unc.edu/definitions/1.0/base-model.xml#sourceData</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">http://cdr.unc.edu/definitions/1.0/base-model.xml#indexText</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">http://cdr.unc.edu/definitions/1.0/base-model.xml#sortOrder</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">http://cdr.unc.edu/definitions/1.0/base-model.xml#hasSurrogate</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">http://cdr.unc.edu/definitions/1.0/base-model.xml#hasSupplemental</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">info:fedora/fedora-system:def/model#hasModel</AttributeValue>
+				</Apply>
+				<ResourceAttributeDesignator MustBePresent="true"
+					AttributeId="http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate"
+					DataType="http://www.w3.org/2001/XMLSchema#anyURI" />
+			</Apply>
+		</Condition>
+	</Rule>
+</Policy>
