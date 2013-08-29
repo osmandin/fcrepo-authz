@@ -55,8 +55,6 @@ public class MockHeadersFilter implements Filter {
      */
     @Override
     public void destroy() {
-        // TODO Auto-generated method stub
-
     }
 
     /*
@@ -159,6 +157,18 @@ public class MockHeadersFilter implements Filter {
                 return mockHeaders.get(name).get(0);
             }
             return super.getHeader(name);
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see
+         * javax.servlet.http.HttpServletRequestWrapper#isUserInRole(java.lang
+         * .String)
+         */
+        @Override
+        public boolean isUserInRole(final String role) {
+            return ServletContainerAuthenticationProvider.FEDORA_USER
+                    .equals(role);
         }
 
         /*

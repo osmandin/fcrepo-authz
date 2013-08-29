@@ -17,12 +17,8 @@
 package org.fcrepo.auth;
 
 import java.security.Principal;
-import java.util.HashSet;
 import java.util.Set;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.security.AccessControlPolicy;
-import javax.jcr.security.Privilege;
 import javax.servlet.http.HttpServletRequest;
 
 import org.modeshape.jcr.security.AdvancedAuthorizationProvider;
@@ -40,22 +36,18 @@ public class FedoraUserSecurityContext implements SecurityContext,
     Logger logger = LoggerFactory
             .getLogger(FedoraUserSecurityContext.class);
 
-    private HttpServletRequest request;
+    private Set<Principal> principals = null;
 
-    private final String username;
+    private HttpServletRequest request = null;
 
-    private final Set<HTTPPrincipalFactory> principalFactories;
+    private FedoraPolicyEnforcementPoint pep = null;
 
-    private AuthorizationHandler authorizationHandler;
-
-    protected FedoraUserSecurityContext(
-            final HttpServletRequest request,
-            final Set<HTTPPrincipalFactory> principalFactories) {
+    protected FedoraUserSecurityContext(final HttpServletRequest request,
+            final Set<Principal> principals,
+            final FedoraPolicyEnforcementPoint pep) {
         this.request = request;
-        this.principalFactories = principalFactories;
-        this.username =
-                request.getUserPrincipal() != null ? request
-                        .getUserPrincipal().getName() : null;
+        this.principals = principals;
+        this.pep = pep;
     }
 
     /**
@@ -75,7 +67,7 @@ public class FedoraUserSecurityContext implements SecurityContext,
      */
     @Override
     public final String getUserName() {
-        return username;
+        return request.getRemoteUser();
     }
 
     /**
@@ -85,20 +77,17 @@ public class FedoraUserSecurityContext implements SecurityContext,
      */
     @Override
     public final boolean hasRole(final String roleName) {
-        return request != null && request.isUserInRole(roleName);
-    }
-
-    /**
-     * Get the extra principals associated with this context.
-     * 
-     * @return the set of principals
-     */
-    public Set<Principal> getGroupPrincipals() {
-        final Set<Principal> result = new HashSet<Principal>();
-        for (final HTTPPrincipalFactory pf : principalFactories) {
-            result.addAll(pf.getGroupPrincipals(request));
+        // Under this custom PEP regime, all users have modeshape read and write
+        // roles.
+        if ("read".equals(roleName)) {
+            return true;
+        } else if ("write".equals(roleName)) {
+            return true;
+        } else if ("admin".equals(roleName)) {
+            return true;
         }
-        return result;
+        return false;
+        // return request != null && request.isUserInRole(roleName);
     }
 
     /**
@@ -136,28 +125,24 @@ public class FedoraUserSecurityContext implements SecurityContext,
             final Path absPath, final String... actions) {
         logger.debug("in hasPermission");
         // what roles do these principals have in repo (MODE-1920)
-        try {
-            final Privilege[] privs =
-                    context.getSession().getAccessControlManager()
-                            .getPrivileges(absPath.toString());
-            final AccessControlPolicy[] policies =
-                    context.getSession().getAccessControlManager()
-                            .getEffectivePolicies(absPath.toString());
-            final FedoraUserSecurityContext sContext =
-                    (FedoraUserSecurityContext) context
-                            .getExecutionContext().getSecurityContext();
-            final Set<Principal> groupPrincipals =
-                    sContext.getGroupPrincipals();
-            final Principal userPrincipal = sContext.getUserPrincipal();
+        // final Privilege[] privs =
+        // context.getSession().getAccessControlManager()
+        // .getPrivileges(absPath.toString());
+        // final AccessControlPolicy[] policies =
+        // context.getSession().getAccessControlManager()
+        // .getEffectivePolicies(absPath.toString());
+        // policies[0].getClass();
 
-            // delegate to a handler
-            return this.authorizationHandler.hasPermission(absPath,
-                    actions, groupPrincipals, userPrincipal, privs,
-                    policies);
-        } catch (final RepositoryException e) {
-            logger.error("Cannot check permission for ModeShape operation: " +
-                    e.getLocalizedMessage());
+        logger.debug("hasPermission(" + context + "," + absPath + "," +
+                actions + ")");
+
+        // delegate to Fedora PDP
+        if (pep != null) {
+            return pep.hasModeShapePermission(absPath, actions,
+                    this.principals, getUserPrincipal());
+        } else {
+            logger.error("Fedora User Security problem: Missing PDP");
+            return false;
         }
-        return false;
     }
 }

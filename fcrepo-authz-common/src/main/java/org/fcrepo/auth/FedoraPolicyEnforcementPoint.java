@@ -17,30 +17,41 @@
 package org.fcrepo.auth;
 
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Set;
-
-import javax.jcr.security.AccessControlPolicy;
-import javax.jcr.security.Privilege;
 
 import org.modeshape.jcr.value.Path;
 
 /**
  * @author Gregory Jansen
  */
-public interface AuthorizationHandler {
+public interface FedoraPolicyEnforcementPoint {
 
     /**
+     * Is the action permitted to the user or other any other principal on the
+     * given node
+     * path?
+     * 
      * @param context
      * @param absPath
      * @param actions
      * @param userPrincipal
-     * @param groupPrincipals
-     * @param privs
-     * @param policies
+     * @param allPrincipals
      * @return
      */
-    boolean hasPermission(Path absPath, String[] actions,
-            Set<Principal> groupPrincipals, Principal userPrincipal,
-            Privilege[] privs, AccessControlPolicy[] policies);
+    boolean hasModeShapePermission(Path absPath, String[] actions,
+            Set<Principal> allPrincipals, Principal userPrincipal);
+
+    /**
+     * Filter the collection of JCR paths, selecting those the user has
+     * permission to read.
+     * 
+     * @param paths the collection of paths
+     * @param allPrincipals all the authenticated principals
+     * @param userPrincipal the user principal
+     * @return set of permitted paths
+     */
+    Set<Path> filterPathsForReading(Collection<Path> paths,
+            Set<Principal> allPrincipals, Principal userPrincipal);
 
 }

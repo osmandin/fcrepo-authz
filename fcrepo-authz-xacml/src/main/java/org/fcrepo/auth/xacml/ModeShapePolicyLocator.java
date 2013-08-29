@@ -1,4 +1,4 @@
-package org.fcrepo.authz.pdp;
+package org.fcrepo.auth.xacml;
 
 import java.util.List;
 import java.util.Set;

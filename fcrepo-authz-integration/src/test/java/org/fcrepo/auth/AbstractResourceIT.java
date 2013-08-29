@@ -1,4 +1,6 @@
+
 package org.fcrepo.auth;
+
 /**
  * Copyright 2013 DuraSpace, Inc.
  *
@@ -14,7 +16,6 @@ package org.fcrepo.auth;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -48,10 +49,17 @@ public abstract class AbstractResourceIT {
     protected static final int SERVER_PORT = Integer.parseInt(System
             .getProperty("test.port", "8080"));
 
+    /**
+     * The context path of the application (including the leading "/"), set as
+     * system property by maven-failsafe-plugin.
+     */
+    private static final String CONTEXT_PATH = System
+            .getProperty("test.context.path");
+
     protected static final String HOSTNAME = "localhost";
 
-    protected static final String serverAddress = "http://" + HOSTNAME + ":" +
-            SERVER_PORT + "/";
+    protected static final String serverAddress = "http://" + HOSTNAME +
+            ":" + SERVER_PORT + CONTEXT_PATH;
 
     protected final PoolingClientConnectionManager connectionManager =
             new PoolingClientConnectionManager();
@@ -66,31 +74,34 @@ public abstract class AbstractResourceIT {
     }
 
     protected static HttpPost postObjMethod(final String pid) {
-        return new HttpPost(serverAddress + "objects/" + pid);
+        return new HttpPost(serverAddress + "rest/" + pid);
     }
 
-    protected static HttpPost
-            postObjMethod(final String pid, final String query) {
+    protected static HttpPost postObjMethod(final String pid,
+            final String query) {
         if (query.equals("")) {
-            return new HttpPost(serverAddress + "objects/" + pid);
+            return new HttpPost(serverAddress + "rest/" + pid);
         } else {
-            return new HttpPost(serverAddress + "objects/" + pid + "?" + query);
+            return new HttpPost(serverAddress + "rest/" + pid + "?" +
+                    query);
         }
     }
 
-    protected static HttpPost postDSMethod(final String pid, final String ds,
-            final String content) throws UnsupportedEncodingException {
+    protected static HttpPost postDSMethod(final String pid,
+            final String ds, final String content)
+            throws UnsupportedEncodingException {
         final HttpPost post =
-                new HttpPost(serverAddress + "objects/" + pid + "/" + ds +
+                new HttpPost(serverAddress + "rest/" + pid + "/" + ds +
                         "/fcr:content");
         post.setEntity(new StringEntity(content));
         return post;
     }
 
-    protected static HttpPut putDSMethod(final String pid, final String ds,
-            final String content) throws UnsupportedEncodingException {
+    protected static HttpPut putDSMethod(final String pid,
+            final String ds, final String content)
+            throws UnsupportedEncodingException {
         final HttpPut put =
-                new HttpPut(serverAddress + "objects/" + pid + "/" + ds +
+                new HttpPut(serverAddress + "rest/" + pid + "/" + ds +
                         "/fcr:content");
 
         put.setEntity(new StringEntity(content));
@@ -98,16 +109,16 @@ public abstract class AbstractResourceIT {
     }
 
     protected HttpResponse execute(final HttpUriRequest method)
-        throws ClientProtocolException, IOException {
+            throws ClientProtocolException, IOException {
         logger.debug("Executing: " + method.getMethod() + " to " +
                 method.getURI());
         return client.execute(method);
     }
 
     protected int getStatus(final HttpUriRequest method)
-        throws ClientProtocolException, IOException {
-        HttpResponse response = execute(method);
-        int result = response.getStatusLine().getStatusCode();
+            throws ClientProtocolException, IOException {
+        final HttpResponse response = execute(method);
+        final int result = response.getStatusLine().getStatusCode();
         if (!(result > 199) || !(result < 400)) {
             logger.warn(EntityUtils.toString(response.getEntity()));
         }

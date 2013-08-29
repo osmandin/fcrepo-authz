@@ -1,8 +1,8 @@
 {
-    "name" : "repo",
+    "name" : "fcrepo-secured-repo",
     "jndiName" : "",
     "workspaces" : {
-        "predefined" : [],
+        "predefined" : ["default"],
         "default" : "default",
         "allowCreation" : true
     },
@@ -21,7 +21,7 @@
             "useOnFailedLogin" : false
         },
         "providers" : [
-            { "classname" : "org.fcrepo.auth.FedoraUserAuthenticationProvider" }
+            { "classname" : "org.fcrepo.auth.ServletContainerAuthenticationProvider" }
         ]
     },
 	"node-types" : ["fedora-node-types.cnd"]

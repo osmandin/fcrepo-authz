@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fcrepo.auth;
+package org.fcrepo.auth.integration;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -31,14 +31,17 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.junit.Before;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("/spring-test/test-container.xml")
 public abstract class AbstractResourceIT {
 
     protected Logger logger;
-
-    protected String OBJECT_PATH = "objects";
 
     @Before
     public void setLogger() {
@@ -66,16 +69,15 @@ public abstract class AbstractResourceIT {
     }
 
     protected static HttpPost postObjMethod(final String pid) {
-        return new HttpPost(serverAddress + "objects/" + pid);
+        return new HttpPost(serverAddress + pid);
     }
 
     protected static HttpPost postObjMethod(final String pid,
             final String query) {
         if (query.equals("")) {
-            return new HttpPost(serverAddress + "objects/" + pid);
+            return new HttpPost(serverAddress + pid);
         } else {
-            return new HttpPost(serverAddress + "objects/" + pid + "?" +
-                    query);
+            return new HttpPost(serverAddress + pid + "?" + query);
         }
     }
 
@@ -83,8 +85,8 @@ public abstract class AbstractResourceIT {
             final String ds, final String content)
             throws UnsupportedEncodingException {
         final HttpPost post =
-                new HttpPost(serverAddress + "objects/" + pid + "/" +
-                        ds + "/fcr:content");
+                new HttpPost(serverAddress + pid + "/" + ds +
+                        "/fcr:content");
         post.setEntity(new StringEntity(content));
         return post;
     }
@@ -93,8 +95,8 @@ public abstract class AbstractResourceIT {
             final String ds, final String content)
             throws UnsupportedEncodingException {
         final HttpPut put =
-                new HttpPut(serverAddress + "objects/" + pid + "/" +
-                        ds + "/fcr:content");
+                new HttpPut(serverAddress + pid + "/" + ds +
+                        "/fcr:content");
 
         put.setEntity(new StringEntity(content));
         return put;
@@ -109,8 +111,8 @@ public abstract class AbstractResourceIT {
 
     protected int getStatus(final HttpUriRequest method)
             throws ClientProtocolException, IOException {
-        HttpResponse response = execute(method);
-        int result = response.getStatusLine().getStatusCode();
+        final HttpResponse response = execute(method);
+        final int result = response.getStatusLine().getStatusCode();
         if (!(result > 199) || !(result < 400)) {
             logger.warn(EntityUtils.toString(response.getEntity()));
         }

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;
+import org.fcrepo.auth.integration.AbstractResourceIT;
 import org.junit.Test;
 
 
