@@ -16,7 +16,7 @@
     <property name="repositoryConfiguration" value="${fcrepo.modeshape.configuration:repository.json}" />
   </bean>
 
-  <bean name="pep" class="org.fcrepo.auth.integration.PermitWhereNodeStartsWithPermitPEP"/>
+  <bean name="pep" class="org.fcrepo.auth.integration.PermitRootAndPathEndsWithPermitSuffixPEP"/>
 
   <bean name="authenticationProvider" class="org.fcrepo.auth.ServletContainerAuthenticationProvider">
     <property name="pep" ref="pep"/>

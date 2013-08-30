@@ -45,6 +45,17 @@ public class ServletContainerAuthenticationProvider implements
         _instance = this;
     }
 
+    public static final String EVERYONE_NAME = "EVERYONE";
+
+    public static final Principal EVERYONE = new Principal() {
+
+        @Override
+        public String getName() {
+            return ServletContainerAuthenticationProvider.EVERYONE_NAME;
+        }
+
+    };
+
     /**
      * User role for Fedora's admin users
      */
@@ -116,22 +127,21 @@ public class ServletContainerAuthenticationProvider implements
             logger.debug("Authenticating a request with Servlet Credentials");
             final HttpServletRequest request = creds.getRequest();
             if (request != null) {
-                if (request.isUserInRole(FEDORA_ADMIN)) {
+                if (request.getUserPrincipal() != null &&
+                        request.isUserInRole(FEDORA_ADMIN)) {
                     return repositoryContext
                             .with(new FedoraAdminSecurityContext(request));
-                } else if (request.isUserInRole(FEDORA_USER)) {
-                    final Set<Principal> principals =
-                            new HashSet<Principal>();
-                    principals.add(request.getUserPrincipal());
-                    // get user details/principals
-                    addUserPrincipals(request, principals);
-                    return repositoryContext
-                            .with(new FedoraUserSecurityContext(request,
-                                    principals, pep));
-                } else {
-                    logger.debug("User " + request.getRemoteUser() +
-                            " was not in a fedora role");
                 }
+                final Set<Principal> principals = new HashSet<Principal>();
+                principals.add(EVERYONE); // all sessions have this principal
+                if (request.getUserPrincipal() != null) {
+                    principals.add(request.getUserPrincipal());
+                }
+                // get user details/principals
+                addUserPrincipals(request, principals);
+                return repositoryContext
+                        .with(new FedoraUserSecurityContext(request,
+                                principals, pep));
             }
         }
         return null;

@@ -17,6 +17,7 @@
 package org.fcrepo.auth;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -133,8 +134,14 @@ public class FedoraUserSecurityContext implements SecurityContext,
         // .getEffectivePolicies(absPath.toString());
         // policies[0].getClass();
 
-        logger.debug("hasPermission(" + context + "," + absPath + "," +
-                actions + ")");
+        logger.debug("hasPermission(" + context + "," +
+                (absPath == null ? absPath : absPath.getString()) + "," +
+                Arrays.toString(actions) + ")");
+
+        // this permission is required for login to succeed
+        if (absPath == null) {
+            return actions.length == 1 && "read".equals(actions[0]);
+        }
 
         // delegate to Fedora PDP
         if (pep != null) {

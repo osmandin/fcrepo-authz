@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Gregory Jansen
  */
-public class PermitWhereNodeStartsWithPermitPEP implements
+public class PermitRootAndPathEndsWithPermitSuffixPEP implements
         FedoraPolicyEnforcementPoint {
 
     Logger logger = LoggerFactory
-            .getLogger(PermitWhereNodeStartsWithPermitPEP.class);
+            .getLogger(PermitRootAndPathEndsWithPermitSuffixPEP.class);
 
     /*
      * (non-Javadoc)
@@ -30,12 +30,23 @@ public class PermitWhereNodeStartsWithPermitPEP implements
     public boolean hasModeShapePermission(final Path absPath,
             final String[] actions, final Set<Principal> allPrincipals,
             final Principal userPrincipal) {
-
+        // allow operations at the root, for test convenience
         if (absPath.isRoot()) {
             return true;
         }
-        return absPath.getLastSegment().getName().getString().startsWith(
-                "Permit");
+
+        // allow anywhere the path ends with "permit"
+        if (absPath.getLastSegment().getName().getLocalName()
+                .toLowerCase().endsWith("permit")) {
+            return true;
+        }
+
+        // allow properties to be set under parent nodes that end with "permit"
+        if (actions.length == 1 && "set_property".equals(actions[0])) {
+            return absPath.getParent().getLastSegment().getName()
+                    .getLocalName().toLowerCase().endsWith("permit");
+        }
+        return false;
     }
 
     /*
