@@ -8,10 +8,10 @@ import static org.mockito.Mockito.when;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.security.AccessControlException;
 import java.security.Principal;
 import java.util.Set;
 
-import javax.jcr.AccessDeniedException;
 import javax.jcr.LoginException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -99,12 +99,12 @@ public class ModeShapeHonorsPEPResponseIT {
         }
         final ObjectService os = new ObjectService();
         final FedoraObject fo = os.createObject(session, "/myobject");
-        verify(pep, times(6)).hasModeShapePermission(any(Path.class),
+        verify(pep, times(5)).hasModeShapePermission(any(Path.class),
                 any(String[].class), Matchers.<Set<Principal>> any(),
                 any(Principal.class));
     }
 
-    @Test(expected = AccessDeniedException.class)
+    @Test(expected = AccessControlException.class)
     public void testRestrictivePEP() throws LoginException,
             RepositoryException {
         when(request.getRemoteUser()).thenReturn("fred");
@@ -128,7 +128,7 @@ public class ModeShapeHonorsPEPResponseIT {
         final Session session = repo.login(credentials);
         final ObjectService os = new ObjectService();
         final FedoraObject fo = os.createObject(session, "/myobject");
-        verify(pep, times(6)).hasModeShapePermission(any(Path.class),
+        verify(pep, times(5)).hasModeShapePermission(any(Path.class),
                 any(String[].class), Matchers.<Set<Principal>> any(),
                 any(Principal.class));
     }
