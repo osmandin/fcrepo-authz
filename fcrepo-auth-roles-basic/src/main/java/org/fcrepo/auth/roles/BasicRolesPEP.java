@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.fcrepo.auth.roles;
 
@@ -132,7 +147,7 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
      * @throws RepositoryException
      */
     private Node findRealNode(final Path absPath, final Session session)
-            throws RepositoryException {
+        throws RepositoryException {
         Node result = null;
         for (Path p = absPath; p != null; p = p.getParent()) {
             log.debug("looking at path: " + p.toString());
@@ -164,7 +179,7 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
 
     private Set<String> getRoles(final Session session,
             final Set<Principal> principals, final Node node)
-            throws RepositoryException {
+        throws RepositoryException {
         final Set<String> result = new HashSet<String>();
         final Map<String, List<String>> acl =
                 this.getAccessRolesProvider().getRoles(node, true);

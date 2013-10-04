@@ -137,9 +137,17 @@
         <artifactId>build-helper-maven-plugin</artifactId>
       </plugin>
       <plugin>
-      	<groupId>org.apache.maven.plugins</groupId>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
       	<artifactId>maven-failsafe-plugin</artifactId>
-      </plugin>      
+        <configuration>
+          <!--Set reuseForks=false due to the need for different instances of the-->
+          <!--Singleton ServletContainerAuthenticationProvider-->
+          <reuseForks>false</reuseForks>
+        </configuration>
+      </plugin>  
     </plugins>
   </build>
 </project>

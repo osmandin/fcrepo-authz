@@ -1,11 +1,27 @@
+/**
+ * Copyright 2013 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.fcrepo.auth.roles.integration;
 
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -184,62 +200,57 @@ public class BasicRolesPepIT extends AbstractRolesIT {
         log.info("SETUP SUCCESSFUL");
     }
 
+    private boolean canRead(final String username, final String path)
+            throws IOException {
+        // get the object info
+        final HttpGet method = getObjectMethod(path);
+        setAuth(method, "examplereader");
+        final HttpResponse response = client.execute(method);
+        final String content = EntityUtils.toString(response.getEntity());
+        final int status = response.getStatusLine().getStatusCode();
+        logger.debug("Received response: \n{}", content);
+        return 403 != status;
+    }
+
     @Test
-    public void testReaderCanReadObjectAndDS() throws ClientProtocolException,
+    public void testReader() throws ClientProtocolException,
             IOException {
-        {
-            // get the object info
-            final HttpGet method = getObjectMethod(test);
-            setAuth(method, "examplereader");
-            final HttpResponse response = client.execute(method);
-            final String content = EntityUtils.toString(response.getEntity());
-            final int status = response.getStatusLine().getStatusCode();
-            assertEquals(200, status);
-            logger.debug("Received response: \n{}", content);
-        }
-        { // get all DS info
-            final HttpGet method = getObjectMethod(test + "/" + testDS);
-            // method.addHeader("Accept", "text/n3");
-            setAuth(method, "examplereader");
-            final HttpResponse response = client.execute(method);
-            final String content = EntityUtils.toString(response.getEntity());
-            logger.debug("Received response: \n{}", content);
-            assertEquals(200, response.getStatusLine().getStatusCode());
-        }
-        { // get DS info
-            final HttpGet method = getObjectMethod(test);
-            method.addHeader("Accept", "text/n3");
-            setAuth(method, "examplereader");
-            final HttpResponse response = client.execute(method);
-            final String content = EntityUtils.toString(response.getEntity());
-            logger.debug("Received response: \n{}", content);
-            assertEquals(200, response.getStatusLine().getStatusCode());
-        }
+        assertTrue("Reader can read " + test, canRead("examplereader", test));
+        assertTrue("Reader can read " + test + "/" + testDS, canRead(
+                "examplereader", test + "/" + testDS));
+        assertFalse("Reader cannot read " + test + "/" + testAdminDS, canRead(
+                "examplereader", test + "/" + testAdminDS));
+        // assertFalse("Reader cannot write", canAddDS("examplereader", test +
+        // "/" + testAdminDS));
+        // assertFalse("Reader cannot write", canSetProperties("examplereader",
+        // test + "/" + testAdminDS));
+        // assertFalse("Reader cannot write", canSetRoles(
+        // "examplereader", test + "/" + testAdminDS));
     }
 
-    @Test
-    public void testReaderCanReadDatastream() {
-        fail("Not yet implemented");
-    }
+    // @Test
+    // public void testReaderCanReadDatastream() {
+    // fail("Not yet implemented");
+    // }
+    //
+    // @Test
+    // public void testReaderCannotCreateDatastream() {
+    // fail("Not yet implemented");
+    // }
+    //
+    // @Test
+    // public void testReaderCannotUpdateSparql() {
+    // fail("Not yet implemented");
+    // }
+    //
+    // @Test
+    // public void testWriter() {
+    // fail("Not yet implemented");
+    // }
 
-    @Test
-    public void testReaderCannotCreateDatastream() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testReaderCannotUpdateSparql() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testWriter() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testAdmin() {
-        fail("Not yet implemented");
-    }
+    // @Test
+    // public void testAdmin() {
+    // fail("Not yet implemented");
+    // }
 
 }
