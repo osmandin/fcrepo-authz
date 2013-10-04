@@ -24,7 +24,8 @@
   </properties>
   <packaging>pom</packaging>
   <modules>
-  	<module>fcrepo-authz-common</module>
+  	<module>fcrepo-auth-roles-basic</module>
+  	<module>fcrepo-auth-roles-common</module>
   	<module>fcrepo-authz-integration</module>
   	<module>fcrepo-authz-xacml</module>
   </modules>
