@@ -33,7 +33,6 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
-import org.fcrepo.auth.ServletContainerAuthenticationProvider;
 import org.fcrepo.auth.roles.Constants.JcrName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +50,7 @@ public class AccessRolesProvider {
             .getLogger(AccessRolesProvider.class);
 
     public static final Map<String, List<String>> DEFAULT_ACCESS_ROLES =
-            Collections.unmodifiableMap(Collections.singletonMap(
-                    ServletContainerAuthenticationProvider.EVERYONE_NAME,
-                    Collections.singletonList("admin")));
+            Collections.emptyMap();
 
     /**
      * Get the roles assigned to this Node. Optionally search up the tree for

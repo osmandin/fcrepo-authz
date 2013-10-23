@@ -79,15 +79,23 @@ public class AccessRolesIT extends AbstractRolesIT {
      */
     @Before
     public void setUp() throws Exception {
-        final HttpPost method = postObjMethod(testobject);
-        final HttpResponse response = client.execute(method);
-        final String content = EntityUtils.toString(response.getEntity());
-        final int status = response.getStatusLine().getStatusCode();
-        assertEquals("Didn't get a CREATED response! Got content:\n" + content,
-                CREATED.getStatusCode(), status);
-        final String location = response.getFirstHeader("Location").getValue();
-        assertEquals("Object wasn't created!", OK.getStatusCode(),
-                getStatus(new HttpGet(location)));
+        try {
+            final HttpDelete method = deleteObjMethod(testobject);
+            client.execute(method);
+        } catch (final Throwable ignored) {
+        }
+        {
+            final HttpPost method = postObjMethod(testobject);
+            final HttpResponse response = client.execute(method);
+            final String content = EntityUtils.toString(response.getEntity());
+            final int status = response.getStatusLine().getStatusCode();
+            assertEquals("Didn't get a CREATED response! Got content:\n" +
+                    content, CREATED.getStatusCode(), status);
+            final String location =
+                    response.getFirstHeader("Location").getValue();
+            assertEquals("Object wasn't created!", OK.getStatusCode(),
+                    getStatus(new HttpGet(location)));
+        }
     }
 
     /**

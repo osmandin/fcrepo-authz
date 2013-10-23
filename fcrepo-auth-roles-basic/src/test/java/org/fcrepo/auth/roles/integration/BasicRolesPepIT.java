@@ -17,7 +17,6 @@
 package org.fcrepo.auth.roles.integration;
 
 import static javax.ws.rs.core.Response.Status.CREATED;
-import static javax.ws.rs.core.Response.Status.OK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -115,16 +114,12 @@ public class BasicRolesPepIT extends AbstractBasicRolesIT {
         {
             // post object
             final HttpPost method = postObjMethod(test);
-            setAuth(method, "exampleadmin");
+            setAuth(method, "fedoraAdmin");
             final HttpResponse response = client.execute(method);
             final String content = EntityUtils.toString(response.getEntity());
             final int status = response.getStatusLine().getStatusCode();
             assertEquals("Didn't get a CREATED response! Got content:\n" +
                     content, CREATED.getStatusCode(), status);
-            final String location =
-                    response.getFirstHeader("Location").getValue();
-            assertEquals("Object wasn't created!", OK.getStatusCode(),
-                    getStatus(new HttpGet(location)));
         }
 
         {
@@ -132,16 +127,12 @@ public class BasicRolesPepIT extends AbstractBasicRolesIT {
             final HttpPost method =
                     postDSMethod(test, testDS,
                             "This is the datastream contents.");
-            setAuth(method, "exampleadmin");
+            setAuth(method, "fedoraAdmin");
             final HttpResponse response = client.execute(method);
             final String content = EntityUtils.toString(response.getEntity());
             final int status = response.getStatusLine().getStatusCode();
             assertEquals("Didn't get a CREATED response! Got content:\n" +
                     content, CREATED.getStatusCode(), status);
-            final String location =
-                    response.getFirstHeader("Location").getValue();
-            assertEquals("Object wasn't created!", OK.getStatusCode(),
-                    getStatus(new HttpGet(location)));
         }
 
         {
@@ -149,22 +140,18 @@ public class BasicRolesPepIT extends AbstractBasicRolesIT {
             final HttpPost method =
                     postDSMethod(test, testAdminDS,
                             "This is the admin only datastream contents.");
-            setAuth(method, "exampleadmin");
+            setAuth(method, "fedoraAdmin");
             final HttpResponse response = client.execute(method);
             final String content = EntityUtils.toString(response.getEntity());
             final int status = response.getStatusLine().getStatusCode();
             assertEquals("Didn't get a CREATED response! Got content:\n" +
                     content, CREATED.getStatusCode(), status);
-            final String location =
-                    response.getFirstHeader("Location").getValue();
-            assertEquals("Object wasn't created!", OK.getStatusCode(),
-                    getStatus(new HttpGet(location)));
         }
 
         {
             // post test object acl
             final HttpPost method = postRolesMethod(test);
-            setAuth(method, "exampleadmin");
+            setAuth(method, "fedoraAdmin");
             method.addHeader("Content-Type", "application/json");
             final StringEntity entity = new StringEntity(jsonRoles, "utf-8");
             method.setEntity(entity);
@@ -175,16 +162,12 @@ public class BasicRolesPepIT extends AbstractBasicRolesIT {
             log.debug("post response content: \n" + content);
             assertEquals(CREATED.getStatusCode(), response.getStatusLine()
                     .getStatusCode());
-            final String location =
-                    response.getFirstHeader("Location").getValue();
-            assertEquals("Got wrong Location header for roles node!",
-                    serverAddress + test + "/" + SUFFIX, location);
         }
 
         {
             // post admin DS acl
             final HttpPost method = postRolesMethod(test + "/" + testAdminDS);
-            setAuth(method, "exampleadmin");
+            setAuth(method, "fedoraAdmin");
             method.addHeader("Content-Type", "application/json");
             final String json =
                     makeJson(Collections.singletonMap("exampleadmin",
