@@ -102,42 +102,53 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
             final Session session = sessionFactory.getInternalSession();
             final Node realNode = findRealNode(absPath, session);
             roles = this.getRoles(session, allPrincipals, realNode);
+            log.debug("roles for this request: " + roles);
         } catch (final RepositoryException e) {
-            log.error("Unexpected role lookup exception", e);
-            return false;
+            throw new Error("Cannot look up node information on " + absPath +
+                    " for permissions check.", e);
         }
 
-        if (clog.isInfoEnabled()) {
+        if (clog.isDebugEnabled()) {
             final StringBuilder msg = new StringBuilder();
             msg.append(roles.toString()).append("\t").append(
                     Arrays.toString(actions)).append("\t").append(
                     newNode ? "NEW" : "OLD").append("\t").append(
                     (absPath == null ? absPath : absPath.toString()));
-            clog.info(msg.toString());
-            if (actions.length > 1) {
-                clog.info("FOUND MULTIPLE ACTIONS: " + Arrays.toString(actions));
+            clog.debug(msg.toString());
+            if (actions.length > 1) { // have yet to see more than one
+                clog.debug("FOUND MULTIPLE ACTIONS: " +
+                        Arrays.toString(actions));
             }
         }
 
         if (roles.size() == 0) {
+            log.debug("A caller without content roles can do nothing in the repository.");
             return false;
         }
         if (roles.contains("admin")) {
+            log.debug("Granting an admin role permission to perform any action.");
             return true;
-        }
-        if (actions.length == 1 && "read".equals(actions[0])) {
-            if (roles.contains("reader") || roles.contains("writer")) {
-                return true;
-            }
         }
         if (roles.contains("writer")) {
             if (absPath.toString().contains(AUTHZ_DETECTION)) {
-                log.debug("Detected AUTHZ IN PATH");
+                log.debug("Denying writer role permission to perform an action on an ACL node.");
                 return false;
             } else {
+                log.debug("Granting writer role permission to perform any action on a non-ACL nodes.");
                 return true;
             }
         }
+        if (roles.contains("reader")) {
+            if (actions.length == 1 && "read".equals(actions[0])) {
+                log.debug("Granting reader role permission to perform a read action.");
+                return true;
+            } else {
+                log.debug("Denying reader role permission to perform a non-read action.");
+                return false;
+            }
+        }
+        log.error("There are roles in session that aren't recognized by this PEP: " +
+                roles);
         return false;
     }
 
@@ -150,7 +161,6 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
         throws RepositoryException {
         Node result = null;
         for (Path p = absPath; p != null; p = p.getParent()) {
-            log.debug("looking at path: " + p.toString());
             try {
                 if (p.isRoot()) {
                     result = session.getRootNode();
@@ -186,6 +196,8 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
         for (final Principal p : principals) {
             final List<String> roles = acl.get(p.getName());
             if (roles != null) {
+                log.debug("request principal matched role assignment: " +
+                        p.getName());
                 result.addAll(roles);
             }
         }

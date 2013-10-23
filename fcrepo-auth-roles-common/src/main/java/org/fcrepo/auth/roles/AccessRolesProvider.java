@@ -60,37 +60,41 @@ public class AccessRolesProvider {
      * @param effective if true then search for effective roles
      * @return a set of roles for each principal
      */
-    @SuppressWarnings("unchecked")
     public Map<String, List<String>>
-    getRoles(Node node, final boolean effective) {
+    getRoles(Node node, final boolean effective)
+        throws RepositoryException {
         final Map<String, List<String>> data =
                 new HashMap<String, List<String>>();
-        try {
-            final Session session = node.getSession();
-            Constants.registerPrefixes(session);
-            if (node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
-                getAssignments(node, data);
-                return data;
-            } else {
-                if (effective) { // look up the tree
-                    try {
-                        for (node = node.getParent(); node != null; node =
-                                node.getParent()) {
-                            if (node.isNodeType(JcrName.rbaclAssignable
-                                    .getQualified())) {
-                                getAssignments(node, data);
-                                return data;
+        final Session session = node.getSession();
+        Constants.registerPrefixes(session);
+        if (node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
+            getAssignments(node, data);
+            return data;
+        } else {
+            if (effective) { // look up the tree
+                try {
+                    for (node = node.getParent(); node != null; node =
+                            node.getParent()) {
+                        if (node.isNodeType(JcrName.rbaclAssignable
+                                .getQualified())) {
+                            log.debug("effective roles are assigned at node: " +
+                                    node.getPath());
+                            getAssignments(node, data);
+                            if (log.isDebugEnabled()) {
+                                for (final String key : data.keySet()) {
+                                    log.debug(key + " has role(s) " +
+                                            data.get(key));
+                                }
                             }
+                            return data;
                         }
-                    } catch (final ItemNotFoundException e) {
-                        return DEFAULT_ACCESS_ROLES;
                     }
+                } catch (final ItemNotFoundException e) {
+                    return DEFAULT_ACCESS_ROLES;
                 }
             }
-        } catch (final RepositoryException e) {
-            log.error("Error gathering roles", e);
         }
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     /**
@@ -135,39 +139,35 @@ public class AccessRolesProvider {
      * @param node the Node to edit
      * @param data the roles to assign
      */
-    public void postRoles(final Node node, final Map<String, Set<String>> data) {
+    public void postRoles(final Node node, final Map<String, Set<String>> data)
+        throws RepositoryException {
         Session session;
+        session = node.getSession();
+        Constants.registerPrefixes(session);
+        if (!node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
+            node.addMixin(JcrName.rbaclAssignable.getQualified());
+            log.debug("added rbaclAssignable type");
+        }
+
+        Node acl = null;
         try {
-            session = node.getSession();
-            Constants.registerPrefixes(session);
-            if (!node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
-                node.addMixin(JcrName.rbaclAssignable.getQualified());
-                log.debug("added rbaclAssignable type");
+            acl =
+                    node.addNode(JcrName.rbacl.getQualified(), JcrName.Rbacl
+                            .getQualified());
+        } catch (final ItemExistsException e) {
+            acl = node.getNode(JcrName.rbacl.getQualified());
+            for (final NodeIterator ni = acl.getNodes(); ni.hasNext();) {
+                ni.nextNode().remove();
             }
+        }
 
-            Node acl = null;
-            try {
-                acl =
-                        node.addNode(JcrName.rbacl.getQualified(),
-                                JcrName.Rbacl.getQualified());
-            } catch (final ItemExistsException e) {
-                acl = node.getNode(JcrName.rbacl.getQualified());
-                for (final NodeIterator ni = acl.getNodes(); ni.hasNext();) {
-                    ni.nextNode().remove();
-                }
-            }
-
-            for (final String key : data.keySet()) {
-                final Node assign =
-                        acl.addNode(JcrName.assignment.getQualified(),
-                                JcrName.Assignment.getQualified());
-                assign.setProperty(JcrName.principal.getQualified(), key);
-                assign.setProperty(JcrName.role.getQualified(), data.get(key)
-                        .toArray(new String[] {}));
-            }
-        } catch (final RepositoryException e1) {
-            log.error("unexpected error", e1);
-            throw new Error(e1);
+        for (final String key : data.keySet()) {
+            final Node assign =
+                    acl.addNode(JcrName.assignment.getQualified(),
+                            JcrName.Assignment.getQualified());
+            assign.setProperty(JcrName.principal.getQualified(), key);
+            assign.setProperty(JcrName.role.getQualified(), data.get(key)
+                    .toArray(new String[] {}));
         }
     }
 
@@ -176,25 +176,19 @@ public class AccessRolesProvider {
      *
      * @param node
      */
-    public void deleteRoles(final Node node) {
+    public void deleteRoles(final Node node) throws RepositoryException {
         Session session;
-        try {
-            session = node.getSession();
-            Constants.registerPrefixes(session);
-            if (node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
-                // remove rbacl child
-                try {
-                    final Node rbacl =
-                            node.getNode(JcrName.rbacl.getQualified());
-                    rbacl.remove();
-                } catch (final PathNotFoundException e) {
-                }
-                // remove mixin
-                node.removeMixin(JcrName.rbaclAssignable.getQualified());
+        session = node.getSession();
+        Constants.registerPrefixes(session);
+        if (node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
+            // remove rbacl child
+            try {
+                final Node rbacl = node.getNode(JcrName.rbacl.getQualified());
+                rbacl.remove();
+            } catch (final PathNotFoundException e) {
             }
-        } catch (final RepositoryException e) {
-            log.error("Unexpected error", e);
-            throw new Error(e);
+            // remove mixin
+            node.removeMixin(JcrName.rbaclAssignable.getQualified());
         }
     }
 
