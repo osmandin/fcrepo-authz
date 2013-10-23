@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo</artifactId>
-    <version>4.0.0-alpha-2-SNAPSHOT</version>
+    <version>4.0.0-alpha-3-SNAPSHOT</version>
   </parent>
   <artifactId>fcrepo-authz</artifactId>
   <name>HTTP Authorization Policy Enforcement Point</name>
@@ -26,7 +26,6 @@
   <modules>
   	<module>fcrepo-auth-roles-basic</module>
   	<module>fcrepo-auth-roles-common</module>
-  	<module>fcrepo-authz-integration</module>
   	<module>fcrepo-authz-xacml</module>
   </modules>
 </project>

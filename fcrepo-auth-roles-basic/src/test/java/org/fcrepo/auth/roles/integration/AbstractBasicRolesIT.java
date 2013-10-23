@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fcrepo.auth.roles;
+package org.fcrepo.auth.roles.integration;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -32,7 +32,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
-import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,14 +39,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/spring-test/test-container.xml")
-public abstract class AbstractRolesIT {
+public abstract class AbstractBasicRolesIT {
 
-    protected Logger logger;
-
-    @Before
-    public void setLogger() {
-        logger = getLogger(this.getClass());
-    }
+    private static Logger logger = getLogger(AbstractBasicRolesIT.class);
 
     protected static final int SERVER_PORT = Integer.parseInt(System
         .getProperty("test.port", "8080"));
@@ -64,9 +58,9 @@ public abstract class AbstractRolesIT {
 
     protected static HttpClient client;
 
-    public AbstractRolesIT() {
+    public AbstractBasicRolesIT() {
         connectionManager.setMaxTotal(Integer.MAX_VALUE);
-        connectionManager.setDefaultMaxPerRoute(5);
+        connectionManager.setDefaultMaxPerRoute(20);
         connectionManager.closeIdleConnections(3, TimeUnit.SECONDS);
         client = new DefaultHttpClient(connectionManager);
     }

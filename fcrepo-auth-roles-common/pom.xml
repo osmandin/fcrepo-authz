@@ -3,11 +3,11 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo</artifactId>
-    <version>4.0.0-alpha-2-SNAPSHOT</version>
+    <version>4.0.0-alpha-3-SNAPSHOT</version>
   </parent>
   <artifactId>fcrepo-auth-roles-common</artifactId>
-  <name>${project.artifactId}</name>
-  <description>A module that adds access roles to the repository tree, adding role management and querying to Fedora objects.</description>
+  <name>Fedora Access Roles API Module</name>
+  <description>This module adds access roles to the repository tree. It creates a REST/JSON API for post and get of access roles on Fedora objects and datastreams. It supports the querying of effective roles by policy enforcement points (PEPs).</description>
 
   <dependencies>
     <dependency>

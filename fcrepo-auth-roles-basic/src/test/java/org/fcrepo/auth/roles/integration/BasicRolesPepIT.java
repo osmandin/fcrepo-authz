@@ -40,7 +40,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.fcrepo.auth.roles.AbstractRolesIT;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gregory Jansen
  */
-public class BasicRolesPepIT extends AbstractRolesIT {
+public class BasicRolesPepIT extends AbstractBasicRolesIT {
 
     private static final Logger log = LoggerFactory
             .getLogger(BasicRolesPepIT.class);
@@ -204,24 +203,31 @@ public class BasicRolesPepIT extends AbstractRolesIT {
             throws IOException {
         // get the object info
         final HttpGet method = getObjectMethod(path);
-        setAuth(method, "examplereader");
+        setAuth(method, username);
         final HttpResponse response = client.execute(method);
-        final String content = EntityUtils.toString(response.getEntity());
         final int status = response.getStatusLine().getStatusCode();
-        logger.debug("Received response: \n{}", content);
+        return 403 != status;
+    }
+
+    private boolean canAddDS(final String username, final String path,
+            final String dsName) throws IOException {
+        final HttpPost method =
+                postDSMethod(path, dsName, "This is the datastream contents.");
+        setAuth(method, username);
+        final HttpResponse response = client.execute(method);
+        final int status = response.getStatusLine().getStatusCode();
         return 403 != status;
     }
 
     @Test
-    public void testReader() throws ClientProtocolException,
-            IOException {
+    public void testReader() throws ClientProtocolException, IOException {
         assertTrue("Reader can read " + test, canRead("examplereader", test));
         assertTrue("Reader can read " + test + "/" + testDS, canRead(
                 "examplereader", test + "/" + testDS));
         assertFalse("Reader cannot read " + test + "/" + testAdminDS, canRead(
                 "examplereader", test + "/" + testAdminDS));
-        // assertFalse("Reader cannot write", canAddDS("examplereader", test +
-        // "/" + testAdminDS));
+        assertFalse("Reader cannot write", canAddDS("examplereader", test,
+                "foo"));
         // assertFalse("Reader cannot write", canSetProperties("examplereader",
         // test + "/" + testAdminDS));
         // assertFalse("Reader cannot write", canSetRoles(
