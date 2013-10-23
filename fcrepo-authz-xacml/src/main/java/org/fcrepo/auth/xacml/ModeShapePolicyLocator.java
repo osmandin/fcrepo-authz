@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.fcrepo.auth.xacml;
 
 import java.util.List;
@@ -22,56 +23,66 @@ import org.jboss.security.xacml.interfaces.PolicyLocator;
 import org.jboss.security.xacml.interfaces.XACMLPolicy;
 import org.jboss.security.xacml.jaxb.Option;
 
-
 /**
  * @author Gregory Jansen
- *
  */
 public class ModeShapePolicyLocator implements PolicyLocator {
 
-	/* (non-Javadoc)
-	 * @see org.jboss.security.xacml.interfaces.AbstractLocator#setOptions(java.util.List)
-	 */
-	@Override
-	public void setOptions(List<Option> arg0) {
-		// TODO Auto-generated method stub
+    /*
+     * (non-Javadoc)
+     * @see
+     * org.jboss.security.xacml.interfaces.AbstractLocator#setOptions(java.util
+     * .List)
+     */
+    @Override
+    public void setOptions(final List<Option> arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jboss.security.xacml.interfaces.ContextMapOp#get(java.lang.String)
-	 */
-	@Override
-	public <T> T get(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /*
+     * (non-Javadoc)
+     * @see
+     * org.jboss.security.xacml.interfaces.ContextMapOp#get(java.lang.String)
+     */
+    @Override
+    public <T> T get(final String arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jboss.security.xacml.interfaces.ContextMapOp#set(java.lang.String, java.lang.Object)
-	 */
-	@Override
-	public <T> void set(String arg0, T arg1) {
-		// TODO Auto-generated method stub
+    /*
+     * (non-Javadoc)
+     * @see
+     * org.jboss.security.xacml.interfaces.ContextMapOp#set(java.lang.String,
+     * java.lang.Object)
+     */
+    @Override
+    public <T> void set(final String arg0, final T arg1) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jboss.security.xacml.interfaces.PolicyLocator#getPolicies()
-	 */
-	@Override
-	public Set<XACMLPolicy> getPolicies() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.jboss.security.xacml.interfaces.PolicyLocator#getPolicies()
+     */
+    @Override
+    public Set<XACMLPolicy> getPolicies() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jboss.security.xacml.interfaces.PolicyLocator#setPolicies(java.util.Set)
-	 */
-	@Override
-	public void setPolicies(Set<XACMLPolicy> arg0) {
-		// TODO Auto-generated method stub
+    /*
+     * (non-Javadoc)
+     * @see
+     * org.jboss.security.xacml.interfaces.PolicyLocator#setPolicies(java.util
+     * .Set)
+     */
+    @Override
+    public void setPolicies(final Set<XACMLPolicy> arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
 }

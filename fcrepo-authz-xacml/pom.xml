@@ -19,27 +19,22 @@
 			<version>2.0.8.Final</version>
 		</dependency>
     
-    <dependency>
-      <groupId>org.modeshape</groupId>
-      <artifactId>modeshape-jcr</artifactId>
-      <version>${modeshape.version}</version>
-    </dependency>
 		<dependency>
 			<groupId>org.jboss.logging</groupId>
 			<artifactId>jboss-logging</artifactId>
 		</dependency>
 		<dependency>
 		  <groupId>org.fcrepo</groupId>
-		  <artifactId>fcrepo-authz-common</artifactId>
+		  <artifactId>fcrepo-auth-common</artifactId>
 		  <version>${project.version}</version>
 		</dependency>
 	</dependencies>
-	<build>
+	<!--build>
 		<finalName>fcrepo-pdp</finalName>
-	</build>
+	</build-->
 	<parent>
 		<groupId>org.fcrepo</groupId>
 		<artifactId>fcrepo-authz</artifactId>
-		<version>4.0.0-alpha-2-SNAPSHOT</version>
+		<version>4.0.0-alpha-3-SNAPSHOT</version>
 	</parent>
 </project>
