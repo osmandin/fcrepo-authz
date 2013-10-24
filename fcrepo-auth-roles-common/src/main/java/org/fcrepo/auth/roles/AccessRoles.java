@@ -196,6 +196,16 @@ public class AccessRoles extends AbstractResource {
                 throw new IllegalArgumentException(
                         "Assignments must include principal name and one or more roles");
             }
+            if (key.trim().length() == 0) {
+                throw new IllegalArgumentException(
+                        "Principal names cannot be an empty strings or whitespace.");
+            }
+            for (final String r : data.get(key)) {
+                if (r.trim().length() == 0) {
+                    throw new IllegalArgumentException(
+                            "Role names cannot be an empty strings or whitespace.");
+                }
+            }
         }
     }
 

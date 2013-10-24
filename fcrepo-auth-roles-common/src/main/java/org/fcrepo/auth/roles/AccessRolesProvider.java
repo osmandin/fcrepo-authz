@@ -77,8 +77,10 @@ public class AccessRolesProvider {
                             node.getParent()) {
                         if (node.isNodeType(JcrName.rbaclAssignable
                                 .getQualified())) {
-                            log.debug("effective roles are assigned at node: " +
-                                    node.getPath());
+                            if (log.isDebugEnabled()) {
+                                log.debug("effective roles are assigned at node: " +
+                                        node.getPath());
+                            }
                             getAssignments(node, data);
                             if (log.isDebugEnabled()) {
                                 for (final String key : data.keySet()) {

@@ -137,10 +137,6 @@
         <artifactId>build-helper-maven-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
       	<artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <!--Set reuseForks=false due to the need for different instances of the-->
