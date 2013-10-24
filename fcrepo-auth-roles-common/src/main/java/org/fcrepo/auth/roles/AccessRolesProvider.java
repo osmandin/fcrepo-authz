@@ -117,6 +117,12 @@ public class AccessRolesProvider {
                     final String principalName =
                             assign.getProperty(JcrName.principal.getQualified())
                                     .getString();
+                    if (principalName == null ||
+                            principalName.trim().length() == 0) {
+                        log.warn("found empty principal name on node " +
+                                node.getPath());
+                        continue;
+                    }
                     List<String> roles = data.get(principalName);
                     if (roles == null) {
                         roles = new ArrayList<String>();
@@ -124,12 +130,18 @@ public class AccessRolesProvider {
                     }
                     for (final Value v : assign.getProperty(
                             JcrName.role.getQualified()).getValues()) {
+                        if (v == null || v.toString().trim().length() == 0) {
+                            log.warn("found empty role name on node " +
+                                    node.getPath());
+                            continue;
+                        }
                         roles.add(v.toString());
                     }
                 }
             } catch (final PathNotFoundException e) {
                 log.error(
-                        "Found rbaclAssignable mixin without a corresponding node.",
+                        "Found rbaclAssignable mixin without a corresponding node at " +
+                                node.getPath(),
                         e);
             }
         }
