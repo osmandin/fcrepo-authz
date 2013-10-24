@@ -16,12 +16,22 @@
 
 package org.fcrepo.auth.roles.integration;
 
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
@@ -31,7 +41,10 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.util.EntityUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.springframework.test.context.ContextConfiguration;
@@ -44,25 +57,130 @@ public abstract class AbstractBasicRolesIT {
     private static Logger logger = getLogger(AbstractBasicRolesIT.class);
 
     protected static final int SERVER_PORT = Integer.parseInt(System
-        .getProperty("test.port", "8080"));
+            .getProperty("test.port", "8080"));
 
     protected static final String HOSTNAME = "localhost";
 
     protected static final String SUFFIX = "fcr:accessRoles";
 
     protected static final String serverAddress = "http://" + HOSTNAME + ":" +
-        SERVER_PORT + "/rest/";
+            SERVER_PORT + "/rest/";
 
     protected final PoolingClientConnectionManager connectionManager =
-        new PoolingClientConnectionManager();
+            new PoolingClientConnectionManager();
 
     protected static HttpClient client;
+
+    /* Principals and roles */
+    private final static Map<String, String> PRINCIPALS_AND_ROLES;
+    static {
+        final Map<String, String> tmap = new HashMap<String, String>();
+        tmap.put("everyone", "reader");
+        tmap.put("examplereader", "reader");
+        tmap.put("examplewriter", "writer");
+        tmap.put("exampleadmin", "admin");
+        PRINCIPALS_AND_ROLES = Collections.unmodifiableMap(tmap);
+    }
+
+    protected final static String jsonACLs = createACLs(PRINCIPALS_AND_ROLES);
+
+    /* Test objects */
+    private final List<BasicRolesPepTestObjectBean> test_objs =
+            new ArrayList<BasicRolesPepTestObjectBean>();
+
+    String test = "rolesTest";
+
+    String testDS = "my_data";
+
+    String testAdminDS = "my_admin_data";
+
+
 
     public AbstractBasicRolesIT() {
         connectionManager.setMaxTotal(Integer.MAX_VALUE);
         connectionManager.setDefaultMaxPerRoute(20);
         connectionManager.closeIdleConnections(3, TimeUnit.SECONDS);
         client = new DefaultHttpClient(connectionManager);
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        try {
+            final HttpDelete method = deleteObjMethod(test);
+            setAuth(method, "fedoraAdmin");
+            client.execute(method);
+        } catch (final Throwable ignored) {
+        }
+
+        {
+            // post object
+            final HttpPost method = postObjMethod(test);
+            setAuth(method, "fedoraAdmin");
+            final HttpResponse response = client.execute(method);
+            final String content = EntityUtils.toString(response.getEntity());
+            final int status = response.getStatusLine().getStatusCode();
+            assertEquals("Didn't get a CREATED response! Got content:\n" +
+                    content, CREATED.getStatusCode(), status);
+        }
+
+        {
+            // post test datastream
+            final HttpPost method =
+                    postDSMethod(test, testDS,
+                            "This is the datastream contents.");
+            setAuth(method, "fedoraAdmin");
+            final HttpResponse response = client.execute(method);
+            final String content = EntityUtils.toString(response.getEntity());
+            final int status = response.getStatusLine().getStatusCode();
+            assertEquals("Didn't get a CREATED response! Got content:\n" +
+                    content, CREATED.getStatusCode(), status);
+        }
+
+        {
+            // post admin only datastream
+            final HttpPost method =
+                    postDSMethod(test, testAdminDS,
+                            "This is the admin only datastream contents.");
+            setAuth(method, "fedoraAdmin");
+            final HttpResponse response = client.execute(method);
+            final String content = EntityUtils.toString(response.getEntity());
+            final int status = response.getStatusLine().getStatusCode();
+            assertEquals("Didn't get a CREATED response! Got content:\n" +
+                    content, CREATED.getStatusCode(), status);
+        }
+
+        {
+            // post test object acl
+            final HttpPost method = postRolesMethod(test);
+            setAuth(method, "fedoraAdmin");
+            method.addHeader("Content-Type", "application/json");
+            final StringEntity entity = new StringEntity(jsonACLs, "utf-8");
+            method.setEntity(entity);
+            final HttpResponse response = client.execute(method);
+            assertNotNull("There must be content for a post.", response
+                    .getEntity());
+            final String content = EntityUtils.toString(response.getEntity());
+            logger.debug("post response content: \n" + content);
+            assertEquals(CREATED.getStatusCode(), response.getStatusLine()
+                    .getStatusCode());
+        }
+
+        {
+            // post admin DS acl
+            final HttpPost method = postRolesMethod(test + "/" + testAdminDS);
+            setAuth(method, "fedoraAdmin");
+            method.addHeader("Content-Type", "application/json");
+            final String json =
+                    makeJson(Collections.singletonMap("exampleadmin",
+                            Collections.singletonList("admin")));
+            final StringEntity entity = new StringEntity(json, "utf-8");
+            method.setEntity(entity);
+            final HttpResponse response = client.execute(method);
+            assertEquals(CREATED.getStatusCode(), response.getStatusLine()
+                    .getStatusCode());
+        }
+
+        logger.info("SETUP SUCCESSFUL");
     }
 
     protected HttpGet getRolesMethod(final String param) {
@@ -92,7 +210,7 @@ public abstract class AbstractBasicRolesIT {
 
     protected static HttpPost postDSMethod(final String objectPath,
             final String ds, final String content)
-            throws UnsupportedEncodingException {
+                    throws UnsupportedEncodingException {
         final HttpPost post =
                 new HttpPost(serverAddress + objectPath + "/" + ds +
                         "/fcr:content");
@@ -120,14 +238,14 @@ public abstract class AbstractBasicRolesIT {
     }
 
     protected HttpResponse execute(final HttpUriRequest method)
-        throws IOException {
+            throws IOException {
         logger.debug("Executing: " + method.getMethod() + " to " +
-            method.getURI());
+                method.getURI());
         return client.execute(method);
     }
 
     protected int getStatus(final HttpUriRequest method)
-        throws IOException {
+            throws IOException {
         final HttpResponse response = execute(method);
         final int result = response.getStatusLine().getStatusCode();
         if (!(result > 199) || !(result < 400)) {
@@ -135,5 +253,62 @@ public abstract class AbstractBasicRolesIT {
         }
         return result;
     }
+
+    protected boolean canRead(final String username, final String path)
+            throws IOException {
+        // get the object info
+        final HttpGet method = getObjectMethod(path);
+        setAuth(method, username);
+        final HttpResponse response = client.execute(method);
+        final int status = response.getStatusLine().getStatusCode();
+        return 403 != status;
+    }
+
+    protected boolean canAddDS(final String username, final String path,
+            final String dsName) throws IOException {
+        final HttpPost method =
+                postDSMethod(path, dsName, "This is the datastream contents.");
+        setAuth(method, username);
+        final HttpResponse response = client.execute(method);
+        final int status = response.getStatusLine().getStatusCode();
+        return 403 != status;
+    }
+
+    private void
+    setAuth(final AbstractHttpMessage method,
+            final String username) {
+        final String creds = username + ":password";
+        // in test configuration we don't need real passwords
+        final String encCreds =
+                new String(Base64.encodeBase64(creds.getBytes()));
+        final String basic = "Basic " + encCreds;
+        method.setHeader("Authorization", basic);
+    }
+
+    private static String createACLs(
+            final Map<String, String> principals_and_roles) {
+        final Map<String, List<String>> acls =
+                new HashMap<String, List<String>>();
+        for (final Map.Entry<String, String> entry : principals_and_roles
+                .entrySet()) {
+            acls.put(entry.getKey(), Collections
+                    .singletonList(entry.getValue()));
+        }
+
+        return makeJson(acls);
+    }
+
+    private static String makeJson(final Map<String, List<String>> roles) {
+        final ObjectMapper mapper = new ObjectMapper();
+        final StringWriter sw = new StringWriter();
+        try {
+            mapper.writeValue(sw, roles);
+            return sw.toString();
+        } catch (final IOException e) {
+            throw new Error(e);
+        }
+    }
+
+    /* Test Objects */
 
 }
