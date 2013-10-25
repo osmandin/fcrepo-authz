@@ -38,6 +38,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -118,7 +119,17 @@ public abstract class AbstractBasicRolesIT {
         return post;
     }
 
-    protected static HttpPost postDSMethod(final String objectPath,
+    protected HttpPut putDSMethod(final String objectPath, final String ds,
+            final String content) throws UnsupportedEncodingException {
+        final HttpPut put =
+                new HttpPut(serverAddress + objectPath + "/" + ds +
+                        "/fcr:content");
+        put.setEntity(new StringEntity(content));
+        logger.debug("PUT: {}", put.getURI());
+        return put;
+    }
+
+    protected HttpPost postDSMethod(final String objectPath,
             final String ds, final String content)
                     throws UnsupportedEncodingException {
         final HttpPost post =
@@ -164,9 +175,9 @@ public abstract class AbstractBasicRolesIT {
         return result;
     }
 
-    protected boolean canRead(final String username, final String path,
+    protected int canRead(final String username, final String path,
             final boolean is_authenticated)
-            throws IOException {
+                    throws IOException {
         // get the object info
         final HttpGet method = getObjectMethod(path);
         if (is_authenticated) {
@@ -174,12 +185,13 @@ public abstract class AbstractBasicRolesIT {
         }
         final HttpResponse response = client.execute(method);
         final int status = response.getStatusLine().getStatusCode();
-        return 403 != status;
+        logger.debug("canRead REST response status code: {}", status);
+        return status;
     }
 
-    protected boolean canAddDS(final String username, final String path,
+    protected int canAddDS(final String username, final String path,
             final String dsName, final boolean is_authenticated)
-            throws IOException {
+                    throws IOException {
         final HttpPost method =
                 postDSMethod(path, dsName, "This is the datastream contents.");
         if (is_authenticated) {
@@ -187,7 +199,43 @@ public abstract class AbstractBasicRolesIT {
         }
         final HttpResponse response = client.execute(method);
         final int status = response.getStatusLine().getStatusCode();
-        return 403 != status;
+        logger.debug("canAddDS REST response status code:  {}", status);
+        return status;
+    }
+
+    protected int canUpdateDS(final String username, final String path,
+            final String dsName, final boolean is_authenticated)
+                    throws IOException {
+        final HttpPut method =
+                putDSMethod(path, dsName, "This is my updated content.");
+        if (is_authenticated) {
+            setAuth(method, username);
+        }
+        final HttpResponse response = client.execute(method);
+        final int status = response.getStatusLine().getStatusCode();
+        logger.debug("canUpdateDS REST response status code:  {}", status);
+        return status;
+    }
+
+    protected int canAddACL(final String username, final String path,
+            final String principal, final String role,
+            final boolean is_authenticated)
+                    throws IOException {
+        final Map<String, String> tmap = new HashMap<String, String>();
+        tmap.put(principal, role);
+        final List<Map<String, String>> acls = Collections.singletonList(tmap);
+        final String jsonACLs = createJsonACLs(acls);
+        final HttpPost method = postRolesMethod(path);
+        if (is_authenticated) {
+            setAuth(method, username);
+        }
+        method.addHeader("Content-Type", "application/json");
+        final StringEntity entity = new StringEntity(jsonACLs, "utf-8");
+        method.setEntity(entity);
+        final HttpResponse response = client.execute(method);
+        final int status = response.getStatusLine().getStatusCode();
+        logger.debug("canAddACL REST response status code:  {}", status);
+        return status;
     }
 
     private void
@@ -201,7 +249,8 @@ public abstract class AbstractBasicRolesIT {
         method.setHeader("Authorization", basic);
     }
 
-    private void deleteTestObject(final BasicRolesPepTestObjectBean obj) {
+    private void deleteTestObject(
+            final BasicRolesPepTestObjectBean obj) {
         try {
             final HttpDelete method = deleteObjMethod(obj.getPath());
             setAuth(method, "fedoraAdmin");
@@ -213,7 +262,8 @@ public abstract class AbstractBasicRolesIT {
         }
     }
 
-    private void ingestObject(final BasicRolesPepTestObjectBean obj)
+    private void
+    ingestObject(final BasicRolesPepTestObjectBean obj)
             throws Exception {
         final HttpPost method = postObjMethod(obj.getPath());
         setAuth(method, "fedoraAdmin");
@@ -227,8 +277,9 @@ public abstract class AbstractBasicRolesIT {
         addDatastreams(obj);
     }
 
-    private void addObjectACLs(final BasicRolesPepTestObjectBean obj)
-            throws Exception {
+    private void addObjectACLs(
+            final BasicRolesPepTestObjectBean obj)
+                    throws Exception {
         if (obj.getACLs().size() > 0) {
             final String jsonACLs = createJsonACLs(obj.getACLs());
 
@@ -246,8 +297,9 @@ public abstract class AbstractBasicRolesIT {
         }
     }
 
-    private void addDatastreams(final BasicRolesPepTestObjectBean obj)
-            throws Exception {
+    private void addDatastreams(
+            final BasicRolesPepTestObjectBean obj)
+                    throws Exception {
         for (final Map<String, String> entries : obj.getDatastreams()) {
             for (final Map.Entry<String, String> entry : entries.entrySet()) {
                 final String dsid = entry.getKey();
@@ -265,12 +317,14 @@ public abstract class AbstractBasicRolesIT {
         }
     }
 
-    private void addDatastreamACLs(final BasicRolesPepTestObjectBean obj,
+    private void addDatastreamACLs(
+            final BasicRolesPepTestObjectBean obj,
             final String dsid) throws Exception {
         if (obj.getDatastreamACLs(dsid) != null) {
-            final List<Map<String, String>> dsACLs =
-                    Collections.singletonList(obj.getDatastreamACLs(dsid));
-            final String jsonACLs = createJsonACLs(dsACLs);
+            final String jsonACLs = createJsonACLs(obj.getDatastreamACLs(dsid));
+            logger.debug("addDatastreamACLs:  Datastream path: {}/{}", obj
+                    .getPath(), dsid);
+            logger.debug("addDatastreamACLs:  JSON acls: {}{}", jsonACLs);
             final HttpPost method = postRolesMethod(obj.getPath() + "/" + dsid);
             setAuth(method, "fedoraAdmin");
             method.addHeader("Content-Type", "application/json");
@@ -296,7 +350,7 @@ public abstract class AbstractBasicRolesIT {
         return makeJson(acls);
     }
 
-    private static String makeJson(final Map<String, List<String>> roles) {
+    private String makeJson(final Map<String, List<String>> roles) {
         final ObjectMapper mapper = new ObjectMapper();
         final StringWriter sw = new StringWriter();
         try {
@@ -317,7 +371,7 @@ public abstract class AbstractBasicRolesIT {
         objA.addACL(EVERYONE_NAME, "reader");
         objA.addACL("examplereader", "reader");
         objA.addACL("examplewriter", "writer");
-        objA.addACL("examplewriter", "admin");
+        objA.addACL("exampleadmin", "admin");
         objA.addDatastream("tsp1_data", "Test Parent 1, datastream 1,  Hello!");
         objA.addDatastream("tsp2_data",
                 "Test Parent 1, datastream 2,  secret stuff");
@@ -337,7 +391,7 @@ public abstract class AbstractBasicRolesIT {
         objC.setPath("testparent1/testchild2WithACL");
         objC.addACL("examplereader", "reader");
         objC.addACL("examplewriter", "writer");
-        objC.addACL("examplewriter", "admin");
+        objC.addACL("exampleadmin", "admin");
         objC.addDatastream("tsc1_data",
                 "Test Child 2, datastream 1,  really secret stuff");
         objC.addDatastream("tsc2_data",
@@ -350,7 +404,7 @@ public abstract class AbstractBasicRolesIT {
                 new BasicRolesPepTestObjectBean();
         objD.setPath("testparent1/testchild4WithACL");
         objD.addACL("examplewriter", "writer");
-        objD.addACL("examplewriter", "admin");
+        objD.addACL("exampleadmin", "admin");
         objD.addDatastream("tsc1_data",
                 "Test Child 3, datastream 1,  really secret stuff");
         objD.addDatastream("tsc2_data",

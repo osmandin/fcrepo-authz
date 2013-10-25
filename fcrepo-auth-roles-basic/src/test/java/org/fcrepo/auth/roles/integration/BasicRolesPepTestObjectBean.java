@@ -32,12 +32,12 @@ public class BasicRolesPepTestObjectBean {
 
     private final List<Map<String, String>> acls;
 
-    private final Map<String, Map<String, String>> datastreamACLs;
+    private final Map<String, List<Map<String, String>>> datastreamACLs;
 
     public BasicRolesPepTestObjectBean() {
         this.datastreams = new ArrayList<Map<String, String>>();
         this.acls = new ArrayList<Map<String, String>>();
-        this.datastreamACLs = new HashMap<String, Map<String, String>>();
+        this.datastreamACLs = new HashMap<String, List<Map<String, String>>>();
     }
 
     public String getPath() {
@@ -68,14 +68,19 @@ public class BasicRolesPepTestObjectBean {
         acls.add(acl);
     }
 
-    public Map<String, String> getDatastreamACLs(final String dsid) {
+    public List<Map<String, String>> getDatastreamACLs(final String dsid) {
         return this.datastreamACLs.get(dsid);
     }
 
     public void addDatastreamACL(final String dsid, final String principal,
             final String role) {
+        List<Map<String, String>> acl_list;
         final Map<String, String> acl = new HashMap<String, String>();
         acl.put(principal, role);
-        this.datastreamACLs.put(dsid, acl);
+        if (this.datastreamACLs.get(dsid) == null) {
+            acl_list = new ArrayList<Map<String, String>>();
+            this.datastreamACLs.put(dsid, acl_list);
+        }
+        this.datastreamACLs.get(dsid).add(acl);
     }
 }
