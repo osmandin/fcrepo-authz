@@ -71,30 +71,8 @@ public abstract class AbstractBasicRolesIT {
 
     protected static HttpClient client;
 
-    /* Principals and roles */
-    private final static Map<String, String> PRINCIPALS_AND_ROLES;
-    static {
-        final Map<String, String> tmap = new HashMap<String, String>();
-        tmap.put("everyone", "reader");
-        tmap.put("examplereader", "reader");
-        tmap.put("examplewriter", "writer");
-        tmap.put("exampleadmin", "admin");
-        PRINCIPALS_AND_ROLES = Collections.unmodifiableMap(tmap);
-    }
-
-    protected final static String jsonACLs = createACLs(PRINCIPALS_AND_ROLES);
-
-    /* Test objects */
-    private final List<BasicRolesPepTestObjectBean> test_objs =
-            new ArrayList<BasicRolesPepTestObjectBean>();
-
-    String test = "rolesTest";
-
-    String testDS = "my_data";
-
-    String testAdminDS = "my_admin_data";
-
-
+    private final static List<BasicRolesPepTestObjectBean> test_objs =
+            defineTestObjects();
 
     public AbstractBasicRolesIT() {
         connectionManager.setMaxTotal(Integer.MAX_VALUE);
@@ -105,81 +83,12 @@ public abstract class AbstractBasicRolesIT {
 
     @Before
     public void setUp() throws Exception {
-        try {
-            final HttpDelete method = deleteObjMethod(test);
-            setAuth(method, "fedoraAdmin");
-            client.execute(method);
-        } catch (final Throwable ignored) {
-        }
+        for (final BasicRolesPepTestObjectBean obj : test_objs) {
 
-        {
-            // post object
-            final HttpPost method = postObjMethod(test);
-            setAuth(method, "fedoraAdmin");
-            final HttpResponse response = client.execute(method);
-            final String content = EntityUtils.toString(response.getEntity());
-            final int status = response.getStatusLine().getStatusCode();
-            assertEquals("Didn't get a CREATED response! Got content:\n" +
-                    content, CREATED.getStatusCode(), status);
-        }
+            deleteTestObject(obj);
+            ingestObject(obj);
 
-        {
-            // post test datastream
-            final HttpPost method =
-                    postDSMethod(test, testDS,
-                            "This is the datastream contents.");
-            setAuth(method, "fedoraAdmin");
-            final HttpResponse response = client.execute(method);
-            final String content = EntityUtils.toString(response.getEntity());
-            final int status = response.getStatusLine().getStatusCode();
-            assertEquals("Didn't get a CREATED response! Got content:\n" +
-                    content, CREATED.getStatusCode(), status);
         }
-
-        {
-            // post admin only datastream
-            final HttpPost method =
-                    postDSMethod(test, testAdminDS,
-                            "This is the admin only datastream contents.");
-            setAuth(method, "fedoraAdmin");
-            final HttpResponse response = client.execute(method);
-            final String content = EntityUtils.toString(response.getEntity());
-            final int status = response.getStatusLine().getStatusCode();
-            assertEquals("Didn't get a CREATED response! Got content:\n" +
-                    content, CREATED.getStatusCode(), status);
-        }
-
-        {
-            // post test object acl
-            final HttpPost method = postRolesMethod(test);
-            setAuth(method, "fedoraAdmin");
-            method.addHeader("Content-Type", "application/json");
-            final StringEntity entity = new StringEntity(jsonACLs, "utf-8");
-            method.setEntity(entity);
-            final HttpResponse response = client.execute(method);
-            assertNotNull("There must be content for a post.", response
-                    .getEntity());
-            final String content = EntityUtils.toString(response.getEntity());
-            logger.debug("post response content: \n" + content);
-            assertEquals(CREATED.getStatusCode(), response.getStatusLine()
-                    .getStatusCode());
-        }
-
-        {
-            // post admin DS acl
-            final HttpPost method = postRolesMethod(test + "/" + testAdminDS);
-            setAuth(method, "fedoraAdmin");
-            method.addHeader("Content-Type", "application/json");
-            final String json =
-                    makeJson(Collections.singletonMap("exampleadmin",
-                            Collections.singletonList("admin")));
-            final StringEntity entity = new StringEntity(json, "utf-8");
-            method.setEntity(entity);
-            final HttpResponse response = client.execute(method);
-            assertEquals(CREATED.getStatusCode(), response.getStatusLine()
-                    .getStatusCode());
-        }
-
         logger.info("SETUP SUCCESSFUL");
     }
 
@@ -254,21 +163,27 @@ public abstract class AbstractBasicRolesIT {
         return result;
     }
 
-    protected boolean canRead(final String username, final String path)
+    protected boolean canRead(final String username, final String path,
+            final boolean is_authenticated)
             throws IOException {
         // get the object info
         final HttpGet method = getObjectMethod(path);
-        setAuth(method, username);
+        if (is_authenticated) {
+            setAuth(method, username);
+        }
         final HttpResponse response = client.execute(method);
         final int status = response.getStatusLine().getStatusCode();
         return 403 != status;
     }
 
     protected boolean canAddDS(final String username, final String path,
-            final String dsName) throws IOException {
+            final String dsName, final boolean is_authenticated)
+            throws IOException {
         final HttpPost method =
                 postDSMethod(path, dsName, "This is the datastream contents.");
-        setAuth(method, username);
+        if (is_authenticated) {
+            setAuth(method, username);
+        }
         final HttpResponse response = client.execute(method);
         final int status = response.getStatusLine().getStatusCode();
         return 403 != status;
@@ -285,16 +200,98 @@ public abstract class AbstractBasicRolesIT {
         method.setHeader("Authorization", basic);
     }
 
-    private static String createACLs(
-            final Map<String, String> principals_and_roles) {
+    private void deleteTestObject(final BasicRolesPepTestObjectBean obj) {
+        try {
+            final HttpDelete method = deleteObjMethod(obj.getPath());
+            setAuth(method, "fedoraAdmin");
+            client.execute(method);
+        } catch (final Throwable ignored) {
+            logger.debug("object {} doesn't exist -- not deleting", obj
+                    .getPath());
+
+        }
+    }
+
+    private void ingestObject(final BasicRolesPepTestObjectBean obj)
+            throws Exception {
+        final HttpPost method = postObjMethod(obj.getPath());
+        setAuth(method, "fedoraAdmin");
+        final HttpResponse response = client.execute(method);
+        final String content = EntityUtils.toString(response.getEntity());
+        final int status = response.getStatusLine().getStatusCode();
+        assertEquals("Didn't get a CREATED response! Got content:\n" + content,
+                CREATED.getStatusCode(), status);
+
+        addObjectACLs(obj);
+        addDatastreams(obj);
+    }
+
+    private void addObjectACLs(final BasicRolesPepTestObjectBean obj)
+            throws Exception {
+        if (obj.getACLs().size() > 0) {
+            final String jsonACLs = createJsonACLs(obj.getACLs());
+
+            final HttpPost method = postRolesMethod(obj.getPath());
+            setAuth(method, "fedoraAdmin");
+            method.addHeader("Content-Type", "application/json");
+            final StringEntity entity = new StringEntity(jsonACLs, "utf-8");
+            method.setEntity(entity);
+            final HttpResponse response = client.execute(method);
+            assertNotNull("There must be content for a post.", response.getEntity());
+            final String content = EntityUtils.toString(response.getEntity());
+            logger.debug("post response content: \n {}", content);
+            assertEquals(CREATED.getStatusCode(), response.getStatusLine()
+                    .getStatusCode());
+        }
+    }
+
+    private void addDatastreams(final BasicRolesPepTestObjectBean obj)
+            throws Exception {
+        for (final Map<String, String> entries : obj.getDatastreams()) {
+            for (final Map.Entry<String, String> entry : entries.entrySet()) {
+                final String dsid = entry.getKey();
+                final HttpPost method =
+                        postDSMethod(obj.getPath(), dsid, entry.getValue());
+                setAuth(method, "fedoraAdmin");
+                final HttpResponse response = client.execute(method);
+                final String content =
+                        EntityUtils.toString(response.getEntity());
+                final int status = response.getStatusLine().getStatusCode();
+                assertEquals("Didn't get a CREATED response! Got content:\n" +
+                        content, CREATED.getStatusCode(), status);
+                addDatastreamACLs(obj, dsid);
+            }
+        }
+    }
+
+    private void addDatastreamACLs(final BasicRolesPepTestObjectBean obj,
+            final String dsid) throws Exception {
+        if (obj.getDatastreamACLs(dsid) != null) {
+            final List<Map<String, String>> dsACLs =
+                    Collections.singletonList(obj.getDatastreamACLs(dsid));
+            final String jsonACLs = createJsonACLs(dsACLs);
+            final HttpPost method = postRolesMethod(obj.getPath() + "/" + dsid);
+            setAuth(method, "fedoraAdmin");
+            method.addHeader("Content-Type", "application/json");
+            final StringEntity entity = new StringEntity(jsonACLs, "utf-8");
+            method.setEntity(entity);
+            final HttpResponse response = client.execute(method);
+            assertEquals(CREATED.getStatusCode(), response.getStatusLine()
+                    .getStatusCode());
+        }
+    }
+
+    private String createJsonACLs(
+            final List<Map<String, String>> principals_and_roles) {
         final Map<String, List<String>> acls =
                 new HashMap<String, List<String>>();
-        for (final Map.Entry<String, String> entry : principals_and_roles
-                .entrySet()) {
-            acls.put(entry.getKey(), Collections
-                    .singletonList(entry.getValue()));
-        }
 
+        for (final Map<String, String> entries : principals_and_roles) {
+            for (final Map.Entry<String, String> entry : entries.entrySet()) {
+                acls.put(entry.getKey(), Collections.singletonList(entry
+                        .getValue()));
+            }
+        }
         return makeJson(acls);
     }
 
@@ -309,6 +306,67 @@ public abstract class AbstractBasicRolesIT {
         }
     }
 
-    /* Test Objects */
+    private static List<BasicRolesPepTestObjectBean> defineTestObjects() {
+        final List<BasicRolesPepTestObjectBean> test_objs =
+                new ArrayList<BasicRolesPepTestObjectBean>();
 
+        final BasicRolesPepTestObjectBean objA =
+                new BasicRolesPepTestObjectBean();
+        objA.setPath("testparent1");
+        objA.addACL("everyone", "reader");
+        objA.addACL("examplereader", "reader");
+        objA.addACL("examplewriter", "writer");
+        objA.addACL("examplewriter", "admin");
+        objA.addDatastream("tsp1_data", "Test Parent 1, datastream 1,  Hello!");
+        objA.addDatastream("tsp2_data",
+                "Test Parent 1, datastream 2,  secret stuff");
+        objA.addDatastreamACL("tsp2_data", "examplereader", "reader");
+        objA.addDatastreamACL("tsp2_data", "examplewriter", "writer");
+        objA.addDatastreamACL("tsp2_data", "exampleadmin", "admin");
+        test_objs.add(objA);
+
+        final BasicRolesPepTestObjectBean objB =
+                new BasicRolesPepTestObjectBean();
+        objB.setPath("testparent1/testchild1NoACL");
+        objB.addDatastream("tsc1_data", "Test Child 1, datastream 1,  Hello!");
+        test_objs.add(objB);
+
+        final BasicRolesPepTestObjectBean objC =
+                new BasicRolesPepTestObjectBean();
+        objC.setPath("testparent1/testchild2WithACL");
+        objC.addACL("examplereader", "reader");
+        objC.addACL("examplewriter", "writer");
+        objC.addACL("examplewriter", "admin");
+        objC.addDatastream("tsc1_data",
+                "Test Child 2, datastream 1,  really secret stuff");
+        objC.addDatastream("tsc2_data",
+                "Test Child 2, datastream 2,  really really secret stuff");
+        objC.addDatastreamACL("tsc2_data", "examplewriter", "writer");
+        objC.addDatastreamACL("tsc2_data", "exampleadmin", "admin");
+        test_objs.add(objC);
+
+        final BasicRolesPepTestObjectBean objD =
+                new BasicRolesPepTestObjectBean();
+        objD.setPath("testparent1/testchild4WithACL");
+        objD.addACL("examplewriter", "writer");
+        objD.addACL("examplewriter", "admin");
+        objD.addDatastream("tsc1_data",
+                "Test Child 3, datastream 1,  really secret stuff");
+        objD.addDatastream("tsc2_data",
+                "Test Child 3, datastream 2,  really really secret stuff");
+        objD.addDatastreamACL("tsc2_data", "exampleadmin", "admin");
+
+        final BasicRolesPepTestObjectBean objE =
+                new BasicRolesPepTestObjectBean();
+        objE.setPath("testparent1/testchild4WithACL");
+        objE.addACL("examplewriter", "admin");
+        objE.addDatastream("tsc1_data",
+                "Test Child 4, datastream 1, burn before reading");
+        objE.addDatastream("tsc2_data", "Test Child 4, datastream 2, Hello!");
+        objE.addDatastreamACL("tsc2_data", "everyone", "reader");
+        test_objs.add(objE);
+
+        return test_objs;
+
+    }
 }

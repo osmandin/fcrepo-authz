@@ -16,6 +16,12 @@
 
 package org.fcrepo.auth.roles.integration;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+
+import org.apache.http.client.ClientProtocolException;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +31,21 @@ import org.slf4j.LoggerFactory;
  * @author Scott Prater
  * @author Gregory Jansen
  */
-public class BasicRolesPepUnauthenticatedIT extends AbstractBasicRolesIT {
+public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
 
     private static final Logger log = LoggerFactory
-            .getLogger(BasicRolesPepIT.class);
+            .getLogger(BasicRolesPepUnauthenticatedUserIT.class);
+
+    @Test
+    public void testUnauthenticatedReaderCanReadEveryoneObj() throws ClientProtocolException, IOException {
+        assertTrue("Reader can read testparent1", canRead(null, "testparent1",
+                false));
+    }
+
+    @Test
+    public void sampleTestAuthenticatedReaderCanReadEveryoneObj()
+            throws ClientProtocolException, IOException {
+        assertTrue("Reader can read testparent1", canRead("examplereader",
+                "testparent1", true));
+    }
 }
