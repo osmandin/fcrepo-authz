@@ -20,7 +20,7 @@
     <property name="pep" ref="pep"/>
   </bean>
   
-  <bean name="pep" class="org.fcrepo.auth.roles.BasicRolesPEP"/>
+  <bean name="pep" class="org.fcrepo.auth.roles.BasicRolesJavaPEP"/>
 
   <bean class="org.modeshape.jcr.JcrRepositoryFactory" />
 
