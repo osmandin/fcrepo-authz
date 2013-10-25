@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -97,11 +95,19 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
             final String[] actions, final Set<Principal> allPrincipals,
             final Principal userPrincipal) {
         final boolean newNode = false;
-        Set<String> roles = null;
+        final Set<String> roles = new HashSet<String>();
         try {
             final Session session = sessionFactory.getInternalSession();
-            final Node realNode = findRealNode(absPath, session);
-            roles = this.getRoles(session, allPrincipals, realNode);
+            final Map<String, List<String>> acl =
+                    this.accessRolesProvider.findRolesForPath(absPath, session);
+            for (final Principal p : allPrincipals) {
+                final List<String> matchedRoles = acl.get(p.getName());
+                if (matchedRoles != null) {
+                    log.debug("request principal matched role assignment: " +
+                            p.getName());
+                    roles.addAll(matchedRoles);
+                }
+            }
             log.debug("roles for this request: " + roles);
         } catch (final RepositoryException e) {
             throw new Error("Cannot look up node information on " + absPath +
@@ -152,29 +158,6 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
         return false;
     }
 
-    /**
-     * @param absPath
-     * @return
-     * @throws RepositoryException
-     */
-    private Node findRealNode(final Path absPath, final Session session)
-        throws RepositoryException {
-        Node result = null;
-        for (Path p = absPath; p != null; p = p.getParent()) {
-            try {
-                if (p.isRoot()) {
-                    result = session.getRootNode();
-                } else {
-                    result = session.getNode(absPath.toString());
-                }
-                break;
-            } catch (final PathNotFoundException e) {
-                log.warn("Cannot find node: " + p);
-            }
-        }
-        return result;
-    }
-
     /*
      * (non-Javadoc)
      * @see
@@ -185,23 +168,6 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
     public Iterator<Path> filterPathsForReading(final Iterator<Path> paths,
             final Set<Principal> allPrincipals, final Principal userPrincipal) {
         throw new UnsupportedOperationException();
-    }
-
-    private Set<String> getRoles(final Session session,
-            final Set<Principal> principals, final Node node)
-        throws RepositoryException {
-        final Set<String> result = new HashSet<String>();
-        final Map<String, List<String>> acl =
-                this.getAccessRolesProvider().getRoles(node, true);
-        for (final Principal p : principals) {
-            final List<String> roles = acl.get(p.getName());
-            if (roles != null) {
-                log.debug("request principal matched role assignment: " +
-                        p.getName());
-                result.addAll(roles);
-            }
-        }
-        return result;
     }
 
 }

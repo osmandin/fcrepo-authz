@@ -34,6 +34,7 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
 import org.fcrepo.auth.roles.Constants.JcrName;
+import org.modeshape.jcr.value.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -204,6 +205,31 @@ public class AccessRolesProvider {
             // remove mixin
             node.removeMixin(JcrName.rbaclAssignable.getQualified());
         }
+    }
+
+    /**
+     * Finds effective roles assigned to a path, using first real ancestor node.
+     *
+     * @param absPath the real or potential node path
+     * @return the roles assigned to each principal
+     * @throws RepositoryException
+     */
+    public Map<String, List<String>> findRolesForPath(final Path absPath,
+            final Session session) throws RepositoryException {
+        Node node = null;
+        for (Path p = absPath; p != null; p = p.getParent()) {
+            try {
+                if (p.isRoot()) {
+                    node = session.getRootNode();
+                } else {
+                    node = session.getNode(absPath.toString());
+                }
+                break;
+            } catch (final PathNotFoundException e) {
+                log.warn("Cannot find node: " + p);
+            }
+        }
+        return this.getRoles(node, true);
     }
 
 }
