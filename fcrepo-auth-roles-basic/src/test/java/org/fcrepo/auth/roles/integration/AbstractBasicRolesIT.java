@@ -17,6 +17,7 @@
 package org.fcrepo.auth.roles.integration;
 
 import static javax.ws.rs.core.Response.Status.CREATED;
+import static org.fcrepo.auth.ServletContainerAuthenticationProvider.EVERYONE_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -313,7 +314,7 @@ public abstract class AbstractBasicRolesIT {
         final BasicRolesPepTestObjectBean objA =
                 new BasicRolesPepTestObjectBean();
         objA.setPath("testparent1");
-        objA.addACL("everyone", "reader");
+        objA.addACL(EVERYONE_NAME, "reader");
         objA.addACL("examplereader", "reader");
         objA.addACL("examplewriter", "writer");
         objA.addACL("examplewriter", "admin");
@@ -363,7 +364,7 @@ public abstract class AbstractBasicRolesIT {
         objE.addDatastream("tsc1_data",
                 "Test Child 4, datastream 1, burn before reading");
         objE.addDatastream("tsc2_data", "Test Child 4, datastream 2, Hello!");
-        objE.addDatastreamACL("tsc2_data", "everyone", "reader");
+        objE.addDatastreamACL("tsc2_data", EVERYONE_NAME, "reader");
         test_objs.add(objE);
 
         return test_objs;
