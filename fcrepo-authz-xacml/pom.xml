@@ -1,40 +1,71 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>fcrepo-authz-xacml</artifactId>
-	<name>Fedora Roles-Based XACML PEP and  PDP</name>
-	<url>http://maven.apache.org</url>
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- <dependency> <groupId>org.picketlink.quickstarts</groupId> <artifactId>pdp</artifactId> 
-			<version>2.1.6.Final</version> <classifier>tomcat-6</classifier> <type>jar</type> 
-			</dependency> -->
-		<dependency>
-			<groupId>org.jboss.security</groupId>
-			<artifactId>jbossxacml</artifactId>
-			<version>2.0.8.Final</version>
-		</dependency>
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>fcrepo-authz-xacml</artifactId>
+  <parent>
+    <groupId>org.fcrepo</groupId>
+    <artifactId>fcrepo-authz</artifactId>
+    <version>4.0.0-alpha-3-SNAPSHOT</version>
+  </parent>
+  <name>Fedora Roles-Based XACML PEP and  PDP</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <dependency>
+      <groupId>org.jboss.security</groupId>
+      <artifactId>jbossxacml</artifactId>
+      <version>2.0.8.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
     
-		<dependency>
-			<groupId>org.jboss.logging</groupId>
-			<artifactId>jboss-logging</artifactId>
-		</dependency>
-		<dependency>
-		  <groupId>org.fcrepo</groupId>
-		  <artifactId>fcrepo-auth-common</artifactId>
-		  <version>${project.version}</version>
-		</dependency>
-	</dependencies>
-	<!--build>
-		<finalName>fcrepo-pdp</finalName>
-	</build-->
-	<parent>
-		<groupId>org.fcrepo</groupId>
-		<artifactId>fcrepo-authz</artifactId>
-		<version>4.0.0-alpha-3-SNAPSHOT</version>
-	</parent>
+    <!-- dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-jcr</artifactId>
+      <version>${project.version}</version>
+    </dependency-->
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-http-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-auth-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-auth-roles-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <!-- test dependencies -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <!--Set reuseForks=false due to the need for different instances of the -->
+          <!--Singleton ServletContainerAuthenticationProvider -->
+          <reuseForks>false</reuseForks>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

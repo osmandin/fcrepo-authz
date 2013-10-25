@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -99,7 +97,7 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
             final String[] actions, final Set<Principal> allPrincipals,
             final Principal userPrincipal) {
         final boolean newNode = false;
-        Set<String> roles = null;
+        final Set<String> roles = new HashSet<String>();
         try {
             final Session session = sessionFactory.getInternalSession();
             final Node realNode = findRealNode(absPath, session);
@@ -188,23 +186,6 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
     public Iterator<Path> filterPathsForReading(final Iterator<Path> paths,
             final Set<Principal> allPrincipals, final Principal userPrincipal) {
         throw new UnsupportedOperationException();
-    }
-
-    private Set<String> getRoles(final Session session,
-            final Set<Principal> principals, final Node node)
-        throws RepositoryException {
-        final Set<String> result = new HashSet<String>();
-        final Map<String, List<String>> acl =
-                this.getAccessRolesProvider().getRoles(node, true);
-        for (final Principal p : principals) {
-            final List<String> roles = acl.get(p.getName());
-            if (roles != null) {
-                log.debug("request principal matched role assignment: " +
-                        p.getName());
-                result.addAll(roles);
-            }
-        }
-        return result;
     }
 
 }
