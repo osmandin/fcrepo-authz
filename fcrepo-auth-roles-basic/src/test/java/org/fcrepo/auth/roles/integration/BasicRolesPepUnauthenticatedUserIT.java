@@ -40,7 +40,7 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
 
     private final static String TESTDS = "uutestds";
 
-    /* Object */
+    /* Public object */
     @Test
     public void testUnauthenticatedReaderCanReadOpenObj()
             throws ClientProtocolException, IOException {
@@ -67,7 +67,15 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
 
     /* Object datastream (open) */
     @Test
-    public void testUnauthenticatedReaderCanReadOpenObjDatastream()
+    public void
+            testUnauthenticatedReaderCanReadOpenObjWithRestrictedDatastream()
+                    throws ClientProtocolException, IOException {
+        assertEquals("Unauthenticated user can read testparent1", OK
+                .getStatusCode(), canRead(null, "testparent1", false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCanReadOpenObjPublicDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user can read datastream testparent1/tsp1_data",
@@ -76,7 +84,8 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
     }
 
     @Test
-    public void testUnauthenticatedReaderCannotUpdateDatastreamOnOpenObj()
+    public void
+            testUnauthenticatedReaderCannotUpdatePublicDatastreamOnOpenObj()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user cannot update datastream testparent1/tsp1_data",
@@ -85,7 +94,8 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
     }
 
     @Test
-    public void testUnauthenticatedReaderCannotAddACLToOpenObjDatastream()
+    public void
+            testUnauthenticatedReaderCannotAddACLToOpenObjPublicDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user cannot add an ACL to datastream testparent1/tsp1_data",
@@ -93,9 +103,8 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
                         "testparent1/tsp1_data", "everyone", "admin", false));
     }
 
-    /* Object datastream (restricted) */
     @Test
-    public void testUnauthenticatedReaderCannotReadRestrictedObjDatastream()
+    public void testUnauthenticatedReaderCannotReadRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user cannot read restricted datastream testparent1/tsp2_data",
@@ -105,7 +114,7 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
 
     @Test
     public void
-    testUnauthenticatedReaderCannotUpdateDatastreamOnRestrictedObj()
+ testUnauthenticatedReaderCannotUpdateRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user cannot update restricted datastream testparent1/tsp2_data",
@@ -115,7 +124,7 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
 
     @Test
     public void
-    testUnauthenticatedReaderCannotAddACLToRestrictedObjDatastream()
+ testUnauthenticatedReaderCannotAddACLToRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user cannot add an ACL to restricted datastream testparent1/tsp2_data",
