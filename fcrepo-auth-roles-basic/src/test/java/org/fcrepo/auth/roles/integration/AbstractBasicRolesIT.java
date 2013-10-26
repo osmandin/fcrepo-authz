@@ -185,7 +185,9 @@ public abstract class AbstractBasicRolesIT {
         }
         final HttpResponse response = client.execute(method);
         final int status = response.getStatusLine().getStatusCode();
-        logger.debug("canRead REST response status code: {}", status);
+        logger.debug(
+                "canRead REST response status code [user: {}, path: {}]: {}",
+                username, path, status);
         return status;
     }
 

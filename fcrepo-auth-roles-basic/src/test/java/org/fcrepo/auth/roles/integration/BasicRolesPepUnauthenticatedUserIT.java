@@ -40,7 +40,7 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
 
     private final static String TESTDS = "uutestds";
 
-    /* Public object */
+    /* Public object, one open datastream */
     @Test
     public void testUnauthenticatedReaderCanReadOpenObj()
             throws ClientProtocolException, IOException {
@@ -65,71 +65,75 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
                         "everyone", "admin", false));
     }
 
-    /* Object datastream (open) */
+    /* Public object, one open datastream, one restricted datastream */
+    /* object */
     @Test
     public void
-            testUnauthenticatedReaderCanReadOpenObjWithRestrictedDatastream()
-                    throws ClientProtocolException, IOException {
-        assertEquals("Unauthenticated user can read testparent1", OK
-                .getStatusCode(), canRead(null, "testparent1", false));
+    testUnauthenticatedReaderCanReadOpenObjWithRestrictedDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals("Unauthenticated user can read testparent2", OK
+                .getStatusCode(), canRead(null, "testparent2", false));
     }
 
+    /* open datastream */
     @Test
     public void testUnauthenticatedReaderCanReadOpenObjPublicDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Unauthenticated user can read datastream testparent1/tsp1_data",
-                OK.getStatusCode(), canRead(null, "testparent1/tsp1_data",
+                "Unauthenticated user can read datastream testparent2/tsp1_data",
+                OK.getStatusCode(), canRead(null, "testparent2/tsp1_data",
                         false));
     }
 
     @Test
     public void
-            testUnauthenticatedReaderCannotUpdatePublicDatastreamOnOpenObj()
+ testUnauthenticatedReaderCannotUpdateOpenObjPublicDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Unauthenticated user cannot update datastream testparent1/tsp1_data",
-                FORBIDDEN.getStatusCode(), canUpdateDS(null, "testparent1",
+                "Unauthenticated user cannot update datastream testparent2/tsp1_data",
+                FORBIDDEN.getStatusCode(), canUpdateDS(null, "testparent2",
                         "tsp1_data", false));
     }
 
     @Test
     public void
-            testUnauthenticatedReaderCannotAddACLToOpenObjPublicDatastream()
+    testUnauthenticatedReaderCannotAddACLToOpenObjPublicDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Unauthenticated user cannot add an ACL to datastream testparent1/tsp1_data",
+                "Unauthenticated user cannot add an ACL to datastream testparent2/tsp1_data",
                 FORBIDDEN.getStatusCode(), canAddACL(null,
-                        "testparent1/tsp1_data", "everyone", "admin", false));
+                        "testparent2/tsp1_data", "everyone", "admin", false));
     }
 
+    /* restricted datastream */
     @Test
-    public void testUnauthenticatedReaderCannotReadRestrictedDatastream()
+    public void
+            testUnauthenticatedReaderCannotReadOpenObjRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Unauthenticated user cannot read restricted datastream testparent1/tsp2_data",
+                "Unauthenticated user cannot read restricted datastream testparent2/tsp2_data",
                 FORBIDDEN.getStatusCode(), canRead(null,
-                        "testparent1/tsp2_data", false));
+                        "testparent2/tsp2_data", false));
     }
 
     @Test
     public void
- testUnauthenticatedReaderCannotUpdateRestrictedDatastream()
+            testUnauthenticatedReaderCannotUpdateOpenObjRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Unauthenticated user cannot update restricted datastream testparent1/tsp2_data",
-                FORBIDDEN.getStatusCode(), canUpdateDS(null, "testparent1",
+                "Unauthenticated user cannot update restricted datastream testparent2/tsp2_data",
+                FORBIDDEN.getStatusCode(), canUpdateDS(null, "testparent2",
                         "tsp2_data", false));
     }
 
     @Test
     public void
- testUnauthenticatedReaderCannotAddACLToRestrictedDatastream()
+            testUnauthenticatedReaderCannotAddACLToOpenObjRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Unauthenticated user cannot add an ACL to restricted datastream testparent1/tsp2_data",
+                "Unauthenticated user cannot add an ACL to restricted datastream testparent2/tsp2_data",
                 FORBIDDEN.getStatusCode(), canAddACL(null,
-                        "testparent1/tsp2_data", "everyone", "admin", false));
+                        "testparent2/tsp2_data", "everyone", "admin", false));
     }
 
     /* Child object (inherits ACL) */
