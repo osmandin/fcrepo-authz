@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -38,6 +39,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.fcrepo.http.commons.AbstractResource;
@@ -136,8 +138,8 @@ public class AccessRoles extends AbstractResource {
             }
         } catch (final PathNotFoundException e) {
             response = Response.status(404).entity(e.getMessage());
-        } catch (final Exception e) {
-            response = Response.serverError().entity(e.getMessage());
+        } catch (final AccessDeniedException e) {
+            return Response.status(Status.FORBIDDEN).build();
         } finally {
             session.logout();
         }
@@ -172,9 +174,8 @@ public class AccessRoles extends AbstractResource {
             response =
                     Response.created(getUriInfo().getBaseUriBuilder()
                             .path(path).path("fcr:accessRoles").build());
-        } catch (final Exception e) {
-            log.debug("got an error", e);
-            response = Response.serverError().entity(e.getMessage());
+        } catch (final AccessDeniedException e) {
+            response = Response.status(Status.FORBIDDEN);
         } finally {
             session.logout();
         }
@@ -222,6 +223,8 @@ public class AccessRoles extends AbstractResource {
             this.getAccessRolesProvider().deleteRoles(node);
             session.save();
             return Response.noContent().build();
+        } catch (final AccessDeniedException e) {
+            return Response.status(Status.FORBIDDEN).build();
         } finally {
             session.logout();
         }
