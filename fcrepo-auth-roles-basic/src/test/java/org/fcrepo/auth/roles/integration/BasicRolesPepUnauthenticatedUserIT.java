@@ -87,7 +87,7 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
 
     @Test
     public void
- testUnauthenticatedReaderCannotUpdateOpenObjPublicDatastream()
+    testUnauthenticatedReaderCannotUpdateOpenObjPublicDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user cannot update datastream testparent2/tsp1_data",
@@ -108,7 +108,7 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
     /* restricted datastream */
     @Test
     public void
-            testUnauthenticatedReaderCannotReadOpenObjRestrictedDatastream()
+    testUnauthenticatedReaderCannotReadOpenObjRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user cannot read restricted datastream testparent2/tsp2_data",
@@ -118,7 +118,7 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
 
     @Test
     public void
-            testUnauthenticatedReaderCannotUpdateOpenObjRestrictedDatastream()
+    testUnauthenticatedReaderCannotUpdateOpenObjRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user cannot update restricted datastream testparent2/tsp2_data",
@@ -128,7 +128,7 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
 
     @Test
     public void
-            testUnauthenticatedReaderCannotAddACLToOpenObjRestrictedDatastream()
+    testUnauthenticatedReaderCannotAddACLToOpenObjRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user cannot add an ACL to restricted datastream testparent2/tsp2_data",
@@ -136,9 +136,157 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
                         "testparent2/tsp2_data", "everyone", "admin", false));
     }
 
-    /* Child object (inherits ACL) */
+    /* Child object (inherits ACL), one open datastream */
+    @Test
+    public void testUnauthenticatedReaderCanReadInheritedACLChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user can read testparent1/testchild1NoACL", OK
+                .getStatusCode(), canRead(null, "testparent1/testchild1NoACL",
+                        false));
+    }
 
-    /* Child object (restricted) */
+    @Test
+    public
+    void
+    testUnauthenticatedReaderCannotWriteDatastreamOnInheritedACLChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot write datastream to testparent1/testchild1NoACL",
+                FORBIDDEN.getStatusCode(), canAddDS(null,
+                        "testparent1/testchild1NoACL", TESTDS, false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCannotAddACLToInheritedACLChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot add an ACL to testparent1/testchild1NoACL",
+                FORBIDDEN.getStatusCode(), canAddACL(null,
+                        "testparent1/testchild1NoACL", "everyone", "admin",
+                        false));
+    }
+
+    @Test
+    public
+    void
+    testUnauthenticatedReaderCanReadInheritedACLChildObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user can read datastream testparent1/testchild1NoACL/tsc1_data",
+                OK.getStatusCode(), canRead(null,
+                        "testparent1/testchild1NoACL/tsc1_data", false));
+    }
+
+    @Test
+    public
+    void
+    testUnauthenticatedReaderCannotUpdateInheritedACLChildObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot update datastream testparent1/testchild1NoACL/tsc1_data",
+                FORBIDDEN.getStatusCode(), canUpdateDS(null,
+                        "testparent1/testchild1NoACL", "tsc1_data", false));
+    }
+
+    @Test
+    public
+    void
+    testUnauthenticatedReaderCannotAddACLToInheritedACLChildObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot add an ACL to datastream testparent1/testchild1NoACL/tsc1_data",
+                FORBIDDEN.getStatusCode(), canAddACL(null,
+                        "testparent1/testchild1NoACL/tsc1_data", "everyone",
+                        "admin", false));
+    }
+
+    /* Restricted child object with own ACL, two restricted datastreams */
+    @Test
+    public void testUnauthenticatedReaderCannotReadRestrictedChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot read testparent1/testchild2WithACL",
+                FORBIDDEN.getStatusCode(), canRead(null,
+                        "testparent1/testchild2WithACL", false));
+    }
+
+    @Test
+    public
+    void
+    testUnauthenticatedReaderCannotWriteDatastreamOnRestrictedChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot write datastream to testparent1/testchild2WithACL",
+                FORBIDDEN.getStatusCode(), canAddDS(null,
+                        "testparent1/testchild2WithACL", TESTDS, false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCannotAddACLToRestrictedChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot add an ACL to testparent1/testchild2WithACL",
+                FORBIDDEN.getStatusCode(), canAddACL(null,
+                        "testparent1/testchild2WithACL", "everyone", "admin",
+                        false));
+    }
+
+    @Test
+    public
+    void
+    testUnauthenticatedReaderCannotReadRestrictedChildObjRestrictedDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot read datastream testparent1/testchild2WithACL/tsc1_data",
+                FORBIDDEN.getStatusCode(), canRead(null,
+                        "testparent1/testchild2WithACL/tsc1_data", false));
+    }
+
+    @Test
+    public
+    void
+    testUnauthenticatedReaderCannotUpdateRestrictedChildObjRestrictedDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot update datastream testparent1/testchild2WithACL/tsc1_data",
+                FORBIDDEN.getStatusCode(), canUpdateDS(null,
+                        "testparent1/testchild2WithACL", "tsc1_data", false));
+    }
+
+    @Test
+    public
+    void
+    testUnauthenticatedReaderCannotAddACLToRestrictedChildObjRestrictedDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot add an ACL to datastream testparent1/testchild2WithACL/tsc1_data",
+                FORBIDDEN.getStatusCode(), canAddACL(null,
+                        "testparent1/testchild2WithACL/tsc1_data", "everyone",
+                        "admin", false));
+    }
 
     /* root node */
+    @Test
+    public void testUnauthenticatedReaderCannotReadRootNode()
+            throws ClientProtocolException, IOException {
+        assertEquals("Unauthenticated user cannot read root node", FORBIDDEN
+                .getStatusCode(), canRead(null, "/", false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCannotWriteDatastreamOnRootNode()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot write datastream to root node",
+                FORBIDDEN.getStatusCode(), canAddDS(null, "/", TESTDS, false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCannotAddACLToRootNode()
+            throws ClientProtocolException, IOException {
+        assertEquals("Unauthenticated user cannot add an ACL to root node",
+                FORBIDDEN.getStatusCode(), canAddACL(null, "/", "everyone",
+                        "admin", false));
+    }
 }
