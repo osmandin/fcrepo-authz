@@ -76,6 +76,8 @@ public abstract class AbstractBasicRolesIT {
     private final static List<BasicRolesPepTestObjectBean> test_objs =
             defineTestObjects();
 
+    private static boolean is_setup = false;
+
     public AbstractBasicRolesIT() {
         connectionManager.setMaxTotal(Integer.MAX_VALUE);
         connectionManager.setDefaultMaxPerRoute(20);
@@ -85,13 +87,15 @@ public abstract class AbstractBasicRolesIT {
 
     @Before
     public void setUp() throws Exception {
-        for (final BasicRolesPepTestObjectBean obj : test_objs) {
+        if (is_setup == false) {
+            for (final BasicRolesPepTestObjectBean obj : test_objs) {
 
-            deleteTestObject(obj);
-            ingestObject(obj);
-
+                deleteTestObject(obj);
+                ingestObject(obj);
+            }
+            is_setup = true;
+            logger.info("SETUP SUCCESSFUL");
         }
-        logger.info("SETUP SUCCESSFUL");
     }
 
     protected HttpGet getRolesMethod(final String param) {

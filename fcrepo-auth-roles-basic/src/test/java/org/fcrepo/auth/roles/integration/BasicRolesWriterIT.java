@@ -92,7 +92,7 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
     testWriterCanUpdateOpenObjPublicDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
-"Writer can update datastream testparent2/tsp1_data",
+                "Writer can update datastream testparent2/tsp1_data",
                 NO_CONTENT
                 .getStatusCode(), canUpdateDS("examplewriter",
                         "testparent2",
@@ -318,8 +318,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     @Test
     public
-    void
-    testWriterCanReadWriterRestrictedChildObjWriterRestrictedDatastream()
+            void
+            testWriterCanReadWriterRestrictedChildObjWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer can read datastream testparent1/testchild4WithACL/tsc1_data",
@@ -329,8 +329,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     @Test
     public
-    void
-    testWriterCanUpdateWriterRestrictedChildObjWriterRestrictedDatastream()
+            void
+            testWriterCanUpdateWriterRestrictedChildObjWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer can update datastream testparent1/testchild4WithACL/tsc1_data",
@@ -340,8 +340,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     @Test
     public
-    void
-    testWriterCannotAddACLToWriterRestrictedChildObjWriterRestrictedDatastream()
+            void
+            testWriterCannotAddACLToWriterRestrictedChildObjWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot add an ACL to datastream testparent1/testchild4WithACL/tsc1_data",
@@ -353,8 +353,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
     /* Even more restricted datastream */
     @Test
     public
-    void
-    testWriterCannotReadWriterRestrictedChildObjReallyWriterRestrictedDatastream()
+            void
+            testWriterCannotReadWriterRestrictedChildObjReallyWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot read datastream testparent1/testchild4WithACL/tsc2_data",
@@ -364,8 +364,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     @Test
     public
-    void
-    testWriterCannotUpdateWriterRestrictedChildObjReallyWriterRestrictedDatastream()
+            void
+            testWriterCannotUpdateWriterRestrictedChildObjReallyWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot update datastream testparent1/testchild4WithACL/tsc2_data",
@@ -375,8 +375,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     @Test
     public
-    void
-    testWriterCannotAddACLToWriterRestrictedChildObjReallyWriterRestrictedDatastream()
+            void
+            testWriterCannotAddACLToWriterRestrictedChildObjReallyWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot add an ACL to datastream testparent1/testchild4WithACL/tsc2_data",
@@ -385,17 +385,17 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
                         "admin", true));
     }
 
-    /* Admin only object */
+    /* Admin object with public datastream */
     @Test
-    public void testWriterCannotReadAdminObjWithRestrictedDatastream()
-            throws ClientProtocolException, IOException {
+    public void testWriterCannotReadAdminObj() throws ClientProtocolException,
+    IOException {
         assertEquals("Writer cannot read testparent2/testchild5WithACL",
                 FORBIDDEN.getStatusCode(), canRead("examplewriter",
                         "testparent2/testchild5WithACL", true));
     }
 
     @Test
-    public void testWriterCannotWriteDatastreamOnAdminRestrictedChildObj()
+    public void testWriterCannotWriteDatastreamOnAdminObj()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot write datastream to testparent2/testchild5WithACL",
@@ -404,7 +404,7 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
     }
 
     @Test
-    public void testWriterCannotAddACLToAdminRestrictedChildObj()
+    public void testWriterCannotAddACLToAdminObj()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot add an ACL to testparent2/testchild5WithACL",
@@ -414,9 +414,7 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
     }
 
     @Test
-    public
-    void
-    testWriterCannotReadAdminRestrictedChildObjAdminRestrictedDatastream()
+    public void testWriterCannotReadAdminObjAdminRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot read datastream testparent2/testchild5WithACL/tsc1_data",
@@ -425,9 +423,7 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
     }
 
     @Test
-    public
-    void
-    testWriterCannotUpdateAdminRestrictedChildObjAdminRestrictedDatastream()
+    public void testWriterCannotUpdateAdminObjAdminRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot update datastream testparent2/testchild5WithACL/tsc1_data",
@@ -436,14 +432,40 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
     }
 
     @Test
-    public
-    void
-    testWriterCannotAddACLToAdminRestrictedChildObjAdminRestrictedDatastream()
+    public void testWriterCannotAddACLToAdminObjAdminRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot add an ACL to datastream testparent2/testchild5WithACL/tsc1_data",
                 FORBIDDEN.getStatusCode(), canAddACL("examplewriter",
                         "testparent2/testchild5WithACL/tsc1_data", "everyone",
+                        "admin", true));
+    }
+
+    @Test
+    public void testWriterCanReadAdminObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Writer can read datastream testparent2/testchild5WithACL/tsc2_data",
+                OK.getStatusCode(), canRead("examplewriter",
+                        "testparent2/tsp1_data", true));
+    }
+
+    @Test
+    public void testWriterCannotUpdateAdminObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Writer cannot update datastream testparent2/testchild5WithACL/tsc2_data",
+                FORBIDDEN.getStatusCode(), canUpdateDS("examplewriter",
+                        "testparent2/testchild5WithACL", "tsc2_data", true));
+    }
+
+    @Test
+    public void testWriterCannotAddACLToAdminObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Writer cannot add an ACL to datastream testparent2/testchild5WithACL/tsc2_data",
+                FORBIDDEN.getStatusCode(), canAddACL("examplewriter",
+                        "testparent2/testchild5WithACL/tsc2_data", "everyone",
                         "admin", true));
     }
 

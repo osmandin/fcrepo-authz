@@ -266,6 +266,64 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
                         "admin", false));
     }
 
+    /* Admin object with public datastream */
+    @Test
+    public void testUnauthenticatedReaderCannotReadAdminObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot read testparent2/testchild5WithACL",
+                FORBIDDEN.getStatusCode(), canRead(null,
+                        "testparent2/testchild5WithACL", false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCannotWriteDatastreamOnAdminObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot write datastream to testparent2/testchild5WithACL",
+                FORBIDDEN.getStatusCode(), canAddDS(null,
+                        "testparent2/testchild5WithACL", TESTDS, false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCannotAddACLToAdminObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot add an ACL to testparent2/testchild5WithACL",
+                FORBIDDEN.getStatusCode(), canAddACL(null,
+                        "testparent2/testchild5WithACL", "everyone", "admin",
+                        false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCanReadAdminObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user can read datastream testparent2/testchild5WithACL/tsc2_data",
+                OK.getStatusCode(), canRead(null, "testparent2/tsp1_data",
+                        false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCannotUpdateAdminObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot update datastream testparent2/testchild5WithACL/tsc2_data",
+                FORBIDDEN.getStatusCode(), canUpdateDS(null,
+                        "testparent2/testchild5WithACL", "tsc2_data", false));
+    }
+
+    @Test
+    public void
+            testUnauthenticatedReaderCannotAddACLToAdminObjPublicDatastream()
+                    throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot add an ACL to datastream testparent2/testchild5WithACL/tsc2_data",
+                FORBIDDEN.getStatusCode(), canAddACL(null,
+                        "testparent2/testchild5WithACL/tsc2_data", "everyone",
+                        "admin", false));
+    }
+
     /* root node */
     @Test
     public void testUnauthenticatedReaderCannotReadRootNode()

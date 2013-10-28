@@ -365,6 +365,62 @@ public class BasicRolesReaderIT extends AbstractBasicRolesIT {
                         "admin", true));
     }
 
+    /* Admin object with public datastream */
+    @Test
+    public void testReaderCannotReadAdminObj() throws ClientProtocolException,
+            IOException {
+        assertEquals("Reader cannot read testparent2/testchild5WithACL",
+                FORBIDDEN.getStatusCode(), canRead("examplereader",
+                        "testparent2/testchild5WithACL", true));
+    }
+
+    @Test
+    public void testReaderCannotWriteDatastreamOnAdminObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Reader cannot write datastream to testparent2/testchild5WithACL",
+                FORBIDDEN.getStatusCode(), canAddDS("examplereader",
+                        "testparent2/testchild5WithACL", TESTDS, true));
+    }
+
+    @Test
+    public void testReaderCannotAddACLToAdminObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Reader cannot add an ACL to testparent2/testchild5WithACL",
+                FORBIDDEN.getStatusCode(), canAddACL("examplereader",
+                        "testparent2/testchild5WithACL", "everyone", "admin",
+                        true));
+    }
+
+    @Test
+    public void testReaderCanReadAdminObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Reader can read datastream testparent2/testchild5WithACL/tsc2_data",
+                OK.getStatusCode(), canRead("examplereader",
+                        "testparent2/tsp1_data", true));
+    }
+
+    @Test
+    public void testReaderCannotUpdateAdminObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Reader cannot update datastream testparent2/testchild5WithACL/tsc2_data",
+                FORBIDDEN.getStatusCode(), canUpdateDS("examplereader",
+                        "testparent2/testchild5WithACL", "tsc2_data", true));
+    }
+
+    @Test
+    public void testReaderCannotAddACLToAdminObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Reader cannot add an ACL to datastream testparent2/testchild5WithACL/tsc2_data",
+                FORBIDDEN.getStatusCode(), canAddACL("examplereader",
+                        "testparent2/testchild5WithACL/tsc2_data", "everyone",
+                        "admin", true));
+    }
+
     /* root node */
     @Test
     public void testReaderCannotReadRootNode()
