@@ -434,11 +434,11 @@ public abstract class AbstractBasicRolesIT {
         /* private child object with 1 private datastream, 1 public datastream */
         final BasicRolesPepTestObjectBean objF =
                 new BasicRolesPepTestObjectBean();
-        objF.setPath("testparent2/testchild4WithACL");
+        objF.setPath("testparent2/testchild5WithACL");
         objF.addACL("examplewriter", "admin");
         objF.addDatastream("tsc1_data",
-                "Test Child 4, datastream 1, burn before reading");
-        objF.addDatastream("tsc2_data", "Test Child 4, datastream 2, Hello!");
+                "Test Child 5, datastream 1, burn before reading");
+        objF.addDatastream("tsc2_data", "Test Child 5, datastream 2, Hello!");
         objF.addDatastreamACL("tsc2_data", EVERYONE_NAME, "reader");
         test_objs.add(objF);
 
