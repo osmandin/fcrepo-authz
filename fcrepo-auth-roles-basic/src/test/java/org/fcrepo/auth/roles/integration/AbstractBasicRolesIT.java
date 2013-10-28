@@ -444,6 +444,7 @@ public abstract class AbstractBasicRolesIT {
                 "Test Child 5, datastream 1, burn before reading");
         objF.addDatastream("tsc2_data", "Test Child 5, datastream 2, Hello!");
         objF.addDatastreamACL("tsc2_data", EVERYONE_NAME, "reader");
+        objD.addDatastreamACL("tsc2_data", "exampleadmin", "admin");
         test_objs.add(objF);
 
         return test_objs;

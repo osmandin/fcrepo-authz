@@ -16,6 +16,7 @@
 
 package org.fcrepo.auth.roles.integration;
 
+import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Verifies that role for admins is properly enforced.
- * 
+ *
  * @author Scott Prater
  * @author Gregory Jansen
  */
@@ -53,7 +54,7 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
     public void testAdminCanWriteDatastreamOnOpenObj()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Admin can write datastream to testparent1", OK
+"Admin can write datastream to testparent1", CREATED
                 .getStatusCode(), canAddDS("exampleadmin", "testparent1",
                         TESTDS, true));
     }
@@ -61,9 +62,10 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
     @Test
     public void testAdminCanAddACLToOpenObj()
             throws ClientProtocolException, IOException {
-        assertEquals("Admin can add an ACL to testparent1", OK.getStatusCode(),
+        assertEquals("Admin can add an ACL to testparent1", CREATED
+                .getStatusCode(),
                 canAddACL("exampleadmin", "testparent1",
-                        "everyone", "admin", true));
+                "EVERYONE", "admin", true));
     }
 
     /* Public object, one open datastream, one restricted datastream */
@@ -103,9 +105,10 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
     public void testAdminCanAddACLToOpenObjPublicDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Admin can add an ACL to datastream testparent2/tsp1_data", OK
+                "Admin can add an ACL to datastream testparent2/tsp1_data",
+                CREATED
                 .getStatusCode(), canAddACL("exampleadmin",
-                        "testparent2/tsp1_data", "everyone", "admin", true));
+                        "testparent2/tsp1_data", "EVERYONE", "admin", true));
     }
 
     /* restricted datastream */
@@ -133,8 +136,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can add an ACL to restricted datastream testparent2/tsp2_data",
-                OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent2/tsp2_data", "everyone", "admin", true));
+                CREATED.getStatusCode(), canAddACL("exampleadmin",
+                        "testparent2/tsp2_data", "EVERYONE", "admin", true));
     }
 
     /* Child object (inherits ACL), one open datastream */
@@ -152,7 +155,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
     public void testAdminCanWriteDatastreamOnInheritedACLChildObj()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Admin can write datastream to testparent1/testchild1NoACL", OK
+                "Admin can write datastream to testparent1/testchild1NoACL",
+                CREATED
                 .getStatusCode(), canAddDS("exampleadmin",
                         "testparent1/testchild1NoACL", TESTDS, true));
     }
@@ -161,9 +165,10 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
     public void testAdminCanAddACLToInheritedACLChildObj()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Admin can add an ACL to testparent1/testchild1NoACL", OK
+"Admin can add an ACL to testparent1/testchild1NoACL",
+                CREATED
                 .getStatusCode(), canAddACL("exampleadmin",
-                        "testparent1/testchild1NoACL", "everyone", "admin",
+                "testparent1/testchild1NoACL", "EVERYONE", "admin",
                         true));
     }
 
@@ -191,8 +196,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can add an ACL to datastream testparent1/testchild1NoACL/tsc1_data",
-                OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent1/testchild1NoACL/tsc1_data", "everyone",
+                CREATED.getStatusCode(), canAddACL("exampleadmin",
+                        "testparent1/testchild1NoACL/tsc1_data", "EVERYONE",
                         "admin", true));
     }
 
@@ -211,7 +216,7 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can write datastream to testparent1/testchild2WithACL",
-                OK.getStatusCode(), canAddDS("exampleadmin",
+                CREATED.getStatusCode(), canAddDS("exampleadmin",
                         "testparent1/testchild2WithACL", TESTDS, true));
     }
 
@@ -220,8 +225,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can add an ACL to testparent1/testchild2WithACL",
-                OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent1/testchild2WithACL", "everyone", "admin",
+                CREATED.getStatusCode(), canAddACL("exampleadmin",
+                        "testparent1/testchild2WithACL", "EVERYONE", "admin",
                         true));
     }
 
@@ -249,8 +254,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can add an ACL to datastream testparent1/testchild2WithACL/tsc1_data",
-                OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent1/testchild2WithACL/tsc1_data", "everyone",
+                CREATED.getStatusCode(), canAddACL("exampleadmin",
+                        "testparent1/testchild2WithACL/tsc1_data", "EVERYONE",
                         "admin", true));
     }
 
@@ -283,8 +288,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can add an ACL to datastream testparent1/testchild2WithACL/tsc2_data",
-                OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent1/testchild2WithACL/tsc2_data", "everyone",
+                CREATED.getStatusCode(), canAddACL("exampleadmin",
+                        "testparent1/testchild2WithACL/tsc2_data", "EVERYONE",
                         "admin", true));
     }
 
@@ -302,7 +307,7 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can write datastream to testparent1/testchild4WithACL",
-                OK.getStatusCode(), canAddDS("exampleadmin",
+                CREATED.getStatusCode(), canAddDS("exampleadmin",
                         "testparent1/testchild4WithACL", TESTDS, true));
     }
 
@@ -311,8 +316,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can add an ACL to testparent1/testchild4WithACL",
-                OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent1/testchild4WithACL", "everyone", "admin",
+                CREATED.getStatusCode(), canAddACL("exampleadmin",
+                        "testparent1/testchild4WithACL", "EVERYONE", "admin",
                         true));
     }
 
@@ -345,8 +350,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can add an ACL to datastream testparent1/testchild4WithACL/tsc1_data",
-                OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent1/testchild4WithACL/tsc1_data", "everyone",
+                CREATED.getStatusCode(), canAddACL("exampleadmin",
+                        "testparent1/testchild4WithACL/tsc1_data", "EVERYONE",
                         "admin", true));
     }
 
@@ -380,8 +385,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can add an ACL to datastream testparent1/testchild4WithACL/tsc2_data",
-                OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent1/testchild4WithACL/tsc2_data", "everyone",
+                CREATED.getStatusCode(), canAddACL("exampleadmin",
+                        "testparent1/testchild4WithACL/tsc2_data", "EVERYONE",
                         "admin", true));
     }
 
@@ -399,7 +404,7 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can write datastream to testparent2/testchild5WithACL",
-                OK.getStatusCode(), canAddDS("exampleadmin",
+                CREATED.getStatusCode(), canAddDS("exampleadmin",
                         "testparent2/testchild5WithACL", TESTDS, true));
     }
 
@@ -408,8 +413,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can add an ACL to testparent2/testchild5WithACL",
-                OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent2/testchild5WithACL", "everyone", "admin",
+                CREATED.getStatusCode(), canAddACL("exampleadmin",
+                        "testparent2/testchild5WithACL", "EVERYONE", "admin",
                         true));
     }
 
@@ -436,8 +441,8 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Admin can add an ACL to datastream testparent2/testchild5WithACL/tsc1_data",
-                OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent2/testchild5WithACL/tsc1_data", "everyone",
+                CREATED.getStatusCode(), canAddACL("exampleadmin",
+                        "testparent2/testchild5WithACL/tsc1_data", "EVERYONE",
                         "admin", true));
     }
 
@@ -465,7 +470,7 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
         assertEquals(
                 "Admin can add an ACL to datastream testparent2/testchild5WithACL/tsc2_data",
                 OK.getStatusCode(), canAddACL("exampleadmin",
-                        "testparent2/testchild5WithACL/tsc2_data", "everyone",
+                        "testparent2/testchild5WithACL/tsc2_data", "EVERYONE",
                         "admin", true));
     }
 
@@ -489,7 +494,7 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
     public void testAdminCannotAddACLToRootNode()
             throws ClientProtocolException, IOException {
         assertEquals("Admin cannot add an ACL to root node", FORBIDDEN
-                .getStatusCode(), canAddACL("exampleadmin", "/", "everyone",
+                .getStatusCode(), canAddACL("exampleadmin", "/", "EVERYONE",
                         "admin", true));
     }
 }

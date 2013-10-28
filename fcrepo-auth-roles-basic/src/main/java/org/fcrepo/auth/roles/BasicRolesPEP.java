@@ -101,6 +101,7 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
         try {
             final Session session = sessionFactory.getInternalSession();
             final Node realNode = findRealNode(absPath, session);
+            log.debug("using real node: " + realNode);
             roles = this.getRoles(session, allPrincipals, realNode);
             log.debug("roles for this request: " + roles);
         } catch (final RepositoryException e) {
@@ -165,7 +166,7 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
                 if (p.isRoot()) {
                     result = session.getRootNode();
                 } else {
-                    result = session.getNode(absPath.toString());
+                    result = session.getNode(p.getString());
                 }
                 break;
             } catch (final PathNotFoundException e) {

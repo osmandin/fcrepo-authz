@@ -16,12 +16,15 @@
 
 package org.fcrepo.auth.roles.integration;
 
+import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
@@ -30,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Verifies that role for writers is properly enforced.
- * 
+ *
  * @author Scott Prater
  * @author Gregory Jansen
  */
@@ -53,7 +56,7 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
     public void testWriterCanWriteDatastreamOnOpenObj()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Writer can write datastream to testparent1", OK
+"Writer can write datastream to testparent1", CREATED
                 .getStatusCode(), canAddDS("examplewriter", "testparent1",
                         TESTDS, true));
     }
@@ -153,7 +156,7 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer can write datastream to testparent1/testchild1NoACL",
-                OK.getStatusCode(), canAddDS("examplewriter",
+                Status.CREATED.getStatusCode(), canAddDS("examplewriter",
                         "testparent1/testchild1NoACL", TESTDS, true));
     }
 
@@ -211,7 +214,7 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer can write datastream to testparent1/testchild2WithACL",
-                OK.getStatusCode(), canAddDS("examplewriter",
+                CREATED.getStatusCode(), canAddDS("examplewriter",
                         "testparent1/testchild2WithACL", TESTDS, true));
     }
 
@@ -302,7 +305,7 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer can write datastream to testparent1/testchild4WithACL",
-                OK.getStatusCode(), canAddDS("examplewriter",
+                CREATED.getStatusCode(), canAddDS("examplewriter",
                         "testparent1/testchild4WithACL", TESTDS, true));
     }
 
