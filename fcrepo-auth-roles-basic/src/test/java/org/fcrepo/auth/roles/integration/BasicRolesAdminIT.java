@@ -54,7 +54,7 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
     public void testAdminCanWriteDatastreamOnOpenObj()
             throws ClientProtocolException, IOException {
         assertEquals(
-"Admin can write datastream to testparent1", CREATED
+                "Admin can write datastream to testparent1", CREATED
                 .getStatusCode(), canAddDS("exampleadmin", "testparent1",
                         TESTDS, true));
     }
@@ -65,7 +65,7 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
         assertEquals("Admin can add an ACL to testparent1", CREATED
                 .getStatusCode(),
                 canAddACL("exampleadmin", "testparent1",
-                "EVERYONE", "admin", true));
+                        "EVERYONE", "admin", true));
     }
 
     /* Public object, one open datastream, one restricted datastream */
@@ -165,10 +165,10 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
     public void testAdminCanAddACLToInheritedACLChildObj()
             throws ClientProtocolException, IOException {
         assertEquals(
-"Admin can add an ACL to testparent1/testchild1NoACL",
+                "Admin can add an ACL to testparent1/testchild1NoACL",
                 CREATED
                 .getStatusCode(), canAddACL("exampleadmin",
-                "testparent1/testchild1NoACL", "EVERYONE", "admin",
+                        "testparent1/testchild1NoACL", "EVERYONE", "admin",
                         true));
     }
 
@@ -456,20 +456,20 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
     }
 
     @Test
-    public void testAdminCanUpdateAdminObjPublicDatastream()
+    public void testAdminCannotUpdateAdminObjPublicDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Admin can update datastream testparent2/testchild5WithACL/tsc2_data",
-                NO_CONTENT.getStatusCode(), canUpdateDS("exampleadmin",
+                "Admin cannot update datastream testparent2/testchild5WithACL/tsc2_data",
+                FORBIDDEN.getStatusCode(), canUpdateDS("exampleadmin",
                         "testparent2/testchild5WithACL", "tsc2_data", true));
     }
 
     @Test
-    public void testAdminCanAddACLToAdminObjPublicDatastream()
+    public void testAdminCannotAddACLToAdminObjPublicDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
-                "Admin can add an ACL to datastream testparent2/testchild5WithACL/tsc2_data",
-                OK.getStatusCode(), canAddACL("exampleadmin",
+                "Admin cannot add an ACL to datastream testparent2/testchild5WithACL/tsc2_data",
+                FORBIDDEN.getStatusCode(), canAddACL("exampleadmin",
                         "testparent2/testchild5WithACL/tsc2_data", "EVERYONE",
                         "admin", true));
     }
