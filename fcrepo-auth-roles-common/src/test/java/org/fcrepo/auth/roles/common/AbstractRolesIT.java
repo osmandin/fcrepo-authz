@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fcrepo.auth.roles;
+package org.fcrepo.auth.roles.common;
 
 import static org.slf4j.LoggerFactory.getLogger;
 

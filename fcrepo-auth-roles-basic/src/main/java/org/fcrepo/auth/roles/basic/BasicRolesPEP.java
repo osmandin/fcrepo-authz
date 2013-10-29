@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fcrepo.auth.roles;
+package org.fcrepo.auth.roles.basic;
 
 import java.security.Principal;
 import java.util.Arrays;
@@ -30,6 +30,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.fcrepo.auth.FedoraPolicyEnforcementPoint;
+import org.fcrepo.auth.roles.common.AccessRolesProvider;
+import org.fcrepo.auth.roles.common.Constants;
 import org.fcrepo.http.commons.session.SessionFactory;
 import org.modeshape.jcr.value.Path;
 import org.slf4j.Logger;

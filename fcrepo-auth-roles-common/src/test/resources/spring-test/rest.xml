@@ -10,5 +10,5 @@
   <!-- Mints PIDs-->
   <bean class="org.fcrepo.kernel.identifiers.UUIDPidMinter"/>
   
-  <context:component-scan base-package="org.fcrepo.kernel.services, org.fcrepo.http, org.fcrepo.serialization, org.fcrepo.auth.roles"  />  
+  <context:component-scan base-package="org.fcrepo.kernel.services, org.fcrepo.http, org.fcrepo.serialization, org.fcrepo.auth.roles.common"  />  
 </beans>

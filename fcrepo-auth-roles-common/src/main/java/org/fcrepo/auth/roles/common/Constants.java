@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fcrepo.auth.roles;
+package org.fcrepo.auth.roles.common;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.RepositoryException;
