@@ -20,7 +20,9 @@
     <property name="pep" ref="pep"/>
   </bean>
   
-  <bean name="pep" class="org.fcrepo.auth.roles.BasicRolesPEP"/>
+  <bean name="pep" class="org.fcrepo.auth.xacml.FedoraXacmlPEP"/>
+  
+  <bean name="pdpFactory" class="org.fcrepo.auth.xacml.FedoraXacmlPDPFactory"/>
 
   <bean class="org.modeshape.jcr.JcrRepositoryFactory" />
 

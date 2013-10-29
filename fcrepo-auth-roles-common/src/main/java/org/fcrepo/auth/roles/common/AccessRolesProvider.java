@@ -79,14 +79,15 @@ public class AccessRolesProvider {
                         if (node.isNodeType(JcrName.rbaclAssignable
                                 .getQualified())) {
                             if (log.isDebugEnabled()) {
-                                log.debug("effective roles are assigned at node: " +
+                                log.debug(
+                                        "effective roles are assigned at node: {}",
                                         node.getPath());
                             }
                             getAssignments(node, data);
                             if (log.isDebugEnabled()) {
                                 for (final String key : data.keySet()) {
-                                    log.debug(key + " has role(s) " +
-                                            data.get(key));
+                                    log.debug("{} has role(s) {}", key, data
+                                            .get(key));
                                 }
                             }
                             return data;
@@ -112,7 +113,7 @@ public class AccessRolesProvider {
         if (node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
             try {
                 final Node rbacl = node.getNode(JcrName.rbacl.getQualified());
-                log.debug("got rbacl: " + rbacl);
+                log.debug("got rbacl: {}", rbacl);
                 for (final NodeIterator ni = rbacl.getNodes(); ni.hasNext();) {
                     final Node assign = ni.nextNode();
                     final String principalName =
@@ -120,7 +121,7 @@ public class AccessRolesProvider {
                                     .getString();
                     if (principalName == null ||
                             principalName.trim().length() == 0) {
-                        log.warn("found empty principal name on node " +
+                        log.warn("found empty principal name on node {}",
                                 node.getPath());
                         continue;
                     }
@@ -132,7 +133,7 @@ public class AccessRolesProvider {
                     for (final Value v : assign.getProperty(
                             JcrName.role.getQualified()).getValues()) {
                         if (v == null || v.toString().trim().length() == 0) {
-                            log.warn("found empty role name on node " +
+                            log.warn("found empty role name on node {}",
                                     node.getPath());
                             continue;
                         }
@@ -141,7 +142,7 @@ public class AccessRolesProvider {
                 }
             } catch (final PathNotFoundException e) {
                 log.error(
-                        "Found rbaclAssignable mixin without a corresponding node at " +
+                        "Found rbaclAssignable mixin without a corresponding node at {}",
                                 node.getPath(),
                         e);
             }
@@ -222,11 +223,11 @@ public class AccessRolesProvider {
                 if (p.isRoot()) {
                     node = session.getRootNode();
                 } else {
-                    node = session.getNode(absPath.toString());
+                    node = session.getNode(p.getString());
                 }
                 break;
             } catch (final PathNotFoundException e) {
-                log.warn("Cannot find node: " + p);
+                log.warn("Cannot find node: {}", p);
             }
         }
         return this.getRoles(node, true);

@@ -50,7 +50,7 @@ public class BasicJavaPolicyFactory {
         final String PERMIT_OVERRIDES =
                 "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides";
         final PolicyType policyType = new PolicyType();
-        policyType.setPolicyId("ExamplePolicy");
+        policyType.setPolicyId("ReaderPolicy");
         policyType.setVersion("2.0");
         policyType.setRuleCombiningAlgId(PERMIT_OVERRIDES);
 

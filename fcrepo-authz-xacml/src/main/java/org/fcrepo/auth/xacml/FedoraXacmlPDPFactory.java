@@ -18,6 +18,8 @@ package org.fcrepo.auth.xacml;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.jboss.security.xacml.core.JBossPDP;
 import org.jboss.security.xacml.core.model.policy.PolicyType;
 import org.jboss.security.xacml.factories.PolicyFactory;
@@ -39,6 +41,7 @@ public class FedoraXacmlPDPFactory {
      *
      * @throws Exception if PDP cannot be initialized
      */
+    @PostConstruct
     public void init() throws Exception {
         final PolicyType policyType =
                 BasicJavaPolicyFactory.constructReaderPolicy();

@@ -93,7 +93,7 @@ public class AccessRolesTypes {
                             mgr.registerNodeTypes(cnd, true);
                     while (nti.hasNext()) {
                         final NodeType nt = nti.nextNodeType();
-                        log.debug("registered node type:" + nt.getName());
+                        log.debug("registered node type: {}", nt.getName());
                     }
                     session.save();
                     registered = true;

@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package org.fcrepo.auth.roles;
+package org.fcrepo.auth.roles.basic;
 
 
 
+import java.security.Principal;
 import java.util.Set;
 
+import org.fcrepo.auth.roles.common.AbstractRolesPEP;
+import org.fcrepo.auth.roles.common.Constants;
 import org.modeshape.jcr.value.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +47,8 @@ public class BasicRolesPEP extends AbstractRolesPEP {
      */
     @Override
     public boolean rolesHaveModeShapePermission(final Path absPath,
-            final String[] actions, final Set<String> roles) {
+            final String[] actions, final Set<Principal> allPrincipals,
+            final Principal userPrincipal, final Set<String> roles) {
         if (roles.size() == 0) {
             log.debug("A caller without content roles can do nothing in the repository.");
             return false;
@@ -71,7 +75,8 @@ public class BasicRolesPEP extends AbstractRolesPEP {
                 return false;
             }
         }
-        log.error("There are roles in session that aren't recognized by this PEP: " +
+        log.error(
+                "There are roles in session that aren't recognized by this PEP: {}",
                 roles);
         return false;
     }

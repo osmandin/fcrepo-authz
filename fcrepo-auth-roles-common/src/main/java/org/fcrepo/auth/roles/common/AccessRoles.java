@@ -123,7 +123,7 @@ public class AccessRoles extends AbstractResource {
         final String effective) throws Exception {
         final String path = toPath(pathList);
         log.debug("Get access roles for: {}", path);
-        log.debug("effective: " + effective);
+        log.debug("effective: {}", effective);
         Response.ResponseBuilder response;
         try {
             final Node node = nodeService.getObject(session, path).getNode();
