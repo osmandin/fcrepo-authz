@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fcrepo.auth.roles;
+package org.fcrepo.auth.roles.common;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +33,7 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
-import org.fcrepo.auth.roles.Constants.JcrName;
+import org.fcrepo.auth.roles.common.Constants.JcrName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

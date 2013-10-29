@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fcrepo.auth.roles;
+package org.fcrepo.auth.roles.common;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 

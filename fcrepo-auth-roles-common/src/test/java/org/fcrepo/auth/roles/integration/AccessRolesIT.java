@@ -38,7 +38,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fcrepo.auth.roles.AbstractRolesIT;
-import org.fcrepo.auth.roles.AccessRolesProvider;
+import org.fcrepo.auth.roles.common.AccessRolesProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,7 +111,7 @@ public class AccessRolesIT extends AbstractRolesIT {
 
     /**
      * Test method for
-     * {@link org.fcrepo.auth.roles.AccessRoles#get(java.util.List)}.
+     * {@link org.fcrepo.auth.roles.common.AccessRoles#get(java.util.List)}.
      *
      * @throws IOException
      * @throws ClientProtocolException
@@ -130,7 +130,7 @@ public class AccessRolesIT extends AbstractRolesIT {
 
     /**
      * Test method for
-     * {@link org.fcrepo.auth.roles.AccessRoles#get(java.util.List)}.
+     * {@link org.fcrepo.auth.roles.common.AccessRoles#get(java.util.List)}.
      *
      * @throws IOException
      * @throws ClientProtocolException
@@ -191,7 +191,7 @@ public class AccessRolesIT extends AbstractRolesIT {
 
     /**
      * Test method for
-     * {@link org.fcrepo.auth.roles.AccessRoles#get(java.util.List, java.util.List)}
+     * {@link org.fcrepo.auth.roles.common.AccessRoles#get(java.util.List, java.util.List)}
      * .
      *
      * @throws IOException
