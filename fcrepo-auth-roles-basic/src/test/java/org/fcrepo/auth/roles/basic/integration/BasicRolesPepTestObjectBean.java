@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.auth.roles.integration;
+package org.fcrepo.auth.roles.basic.integration;
 
 import java.util.ArrayList;
 import java.util.HashMap;

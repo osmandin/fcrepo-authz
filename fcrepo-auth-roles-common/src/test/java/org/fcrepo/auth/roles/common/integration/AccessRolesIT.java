@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.fcrepo.auth.roles.integration;
+package org.fcrepo.auth.roles.common.integration;
 
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.OK;
@@ -37,7 +37,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.fcrepo.auth.roles.AbstractRolesIT;
+import org.fcrepo.auth.roles.common.AbstractRolesIT;
 import org.fcrepo.auth.roles.common.AccessRolesProvider;
 import org.junit.After;
 import org.junit.Before;
