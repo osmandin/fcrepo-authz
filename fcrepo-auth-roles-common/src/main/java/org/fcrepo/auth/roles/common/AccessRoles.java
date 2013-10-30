@@ -61,7 +61,7 @@ import com.codahale.metrics.annotation.Timed;
  */
 @Component
 @Scope("prototype")
-@Path("/{path: .*}/fcr:accessroles")
+@Path("/{path: .*}/fcr:accessRoles")
 public class AccessRoles extends AbstractResource {
 
     private static final Logger log = LoggerFactory
@@ -149,7 +149,7 @@ public class AccessRoles extends AbstractResource {
             log.debug("Saved access roles {}", data);
             response =
                     Response.created(getUriInfo().getBaseUriBuilder()
-                            .path(path).path("fcr:accessroles").build());
+                            .path(path).path("fcr:accessRoles").build());
         } catch (final AccessDeniedException e) {
             response = Response.status(Status.FORBIDDEN);
         } finally {
