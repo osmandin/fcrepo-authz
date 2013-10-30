@@ -38,6 +38,9 @@ import org.slf4j.Logger;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+/**
+ * @author Gregory Jansen
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/spring-test/test-container.xml")
 public abstract class AbstractRolesIT {
@@ -54,7 +57,7 @@ public abstract class AbstractRolesIT {
 
     protected static final String HOSTNAME = "localhost";
 
-    protected static final String SUFFIX = "fcr:accessRoles";
+    protected static final String SUFFIX = "fcr:accessroles";
 
     protected static final String serverAddress = "http://" + HOSTNAME + ":" +
         SERVER_PORT + "/rest/";

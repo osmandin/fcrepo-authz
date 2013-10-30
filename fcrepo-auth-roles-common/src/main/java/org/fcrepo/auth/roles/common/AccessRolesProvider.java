@@ -31,7 +31,6 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
 
 import org.fcrepo.auth.roles.common.Constants.JcrName;
 import org.modeshape.jcr.value.Path;
@@ -98,18 +97,18 @@ public class AccessRolesProvider {
                 }
             }
         }
-        return Collections.emptyMap();
+        return DEFAULT_ACCESS_ROLES;
     }
 
     /**
      * @param node
      * @param data
      * @throws RepositoryException
-     * @throws ValueFormatException
      */
     private void getAssignments(final Node node,
-            final Map<String, List<String>> data) throws ValueFormatException,
-            RepositoryException {
+            final Map<String, List<String>> data)
+        throws RepositoryException {
+
         if (node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
             try {
                 final Node rbacl = node.getNode(JcrName.rbacl.getQualified());
@@ -123,21 +122,21 @@ public class AccessRolesProvider {
                             principalName.trim().length() == 0) {
                         log.warn("found empty principal name on node {}",
                                 node.getPath());
-                        continue;
-                    }
-                    List<String> roles = data.get(principalName);
-                    if (roles == null) {
-                        roles = new ArrayList<String>();
-                        data.put(principalName, roles);
-                    }
-                    for (final Value v : assign.getProperty(
-                            JcrName.role.getQualified()).getValues()) {
-                        if (v == null || v.toString().trim().length() == 0) {
-                            log.warn("found empty role name on node {}",
-                                    node.getPath());
-                            continue;
+                    } else {
+                        List<String> roles = data.get(principalName);
+                        if (roles == null) {
+                            roles = new ArrayList<String>();
+                            data.put(principalName, roles);
                         }
-                        roles.add(v.toString());
+                        for (final Value v : assign.getProperty(
+                                JcrName.role.getQualified()).getValues()) {
+                            if (v == null || v.toString().trim().length() == 0) {
+                                log.warn("found empty role name on node {}",
+                                        node.getPath());
+                            } else {
+                                roles.add(v.toString());
+                            }
+                        }
                     }
                 }
             } catch (final PathNotFoundException e) {
@@ -157,8 +156,7 @@ public class AccessRolesProvider {
      */
     public void postRoles(final Node node, final Map<String, Set<String>> data)
         throws RepositoryException {
-        Session session;
-        session = node.getSession();
+        Session session = node.getSession();
         Constants.registerPrefixes(session);
         if (!node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
             node.addMixin(JcrName.rbaclAssignable.getQualified());
@@ -193,8 +191,7 @@ public class AccessRolesProvider {
      * @param node
      */
     public void deleteRoles(final Node node) throws RepositoryException {
-        Session session;
-        session = node.getSession();
+        Session session = node.getSession();
         Constants.registerPrefixes(session);
         if (node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
             // remove rbacl child

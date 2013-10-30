@@ -35,8 +35,8 @@ public class BasicRolesPEP extends AbstractRolesPEP {
     public static final Logger log = LoggerFactory
             .getLogger(BasicRolesPEP.class);
 
-    public static String AUTHZ_DETECTION = "/{" + Constants.JcrName.NS_URI +
-            "}";
+    private static final String AUTHZ_DETECTION =
+            "/{" + Constants.JcrName.NS_URI + "}";
 
     /*
      * (non-Javadoc)

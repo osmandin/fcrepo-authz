@@ -16,7 +16,6 @@
 
 package org.fcrepo.auth.roles.common;
 
-import javax.jcr.NamespaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -82,11 +81,10 @@ public class Constants {
     /**
      * Adds access roles prefix "authz" to the given session.
      * @param session
-     * @throws NamespaceException
      * @throws RepositoryException
      */
     public static void registerPrefixes(final Session session)
-        throws NamespaceException, RepositoryException {
+        throws RepositoryException {
         session.setNamespacePrefix(JcrName.NS_PREFIX, JcrName.NS_URI);
     }
 }
