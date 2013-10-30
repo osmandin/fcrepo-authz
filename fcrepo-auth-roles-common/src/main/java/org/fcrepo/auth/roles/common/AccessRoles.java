@@ -61,7 +61,7 @@ import com.codahale.metrics.annotation.Timed;
  */
 @Component
 @Scope("prototype")
-@Path("/{path: .*}/fcr:accessRoles")
+@Path("/{path: .*}/fcr:accessroles")
 public class AccessRoles extends AbstractResource {
 
     private static final Logger log = LoggerFactory
@@ -73,40 +73,16 @@ public class AccessRoles extends AbstractResource {
     @Autowired
     private AccessRolesProvider accessRolesProvider = null;
 
-    @Autowired
-    private AccessRolesTypes accessRolesTypes = null;
+    @Context
+    protected HttpServletRequest request;
 
-    /**
-     * @return the accessRolesTypes
-     */
-    public AccessRolesTypes getAccessRolesTypes() {
-        return accessRolesTypes;
-    }
-
-    /**
-     * @param accessRolesTypes the accessRolesTypes to set
-     */
-    public void setAccessRolesTypes(final AccessRolesTypes accessRolesTypes) {
-        this.accessRolesTypes = accessRolesTypes;
-    }
 
     /**
      * @return the accessRolesProvider
      */
-    public AccessRolesProvider getAccessRolesProvider() {
+    private AccessRolesProvider getAccessRolesProvider() {
         return accessRolesProvider;
     }
-
-    /**
-     * @param accessRolesProvider the accessRolesProvider to set
-     */
-    public void setAccessRolesProvider(
-            final AccessRolesProvider accessRolesProvider) {
-        this.accessRolesProvider = accessRolesProvider;
-    }
-
-    @Context
-    protected HttpServletRequest request;
 
     /**
      * Retrieve the roles assigned to each principal on this specific path.
@@ -139,7 +115,7 @@ public class AccessRoles extends AbstractResource {
         } catch (final PathNotFoundException e) {
             response = Response.status(404).entity(e.getMessage());
         } catch (final AccessDeniedException e) {
-            return Response.status(Status.FORBIDDEN).build();
+            response = Response.status(Status.FORBIDDEN);
         } finally {
             session.logout();
         }
@@ -173,7 +149,7 @@ public class AccessRoles extends AbstractResource {
             log.debug("Saved access roles {}", data);
             response =
                     Response.created(getUriInfo().getBaseUriBuilder()
-                            .path(path).path("fcr:accessRoles").build());
+                            .path(path).path("fcr:accessroles").build());
         } catch (final AccessDeniedException e) {
             response = Response.status(Status.FORBIDDEN);
         } finally {
@@ -232,15 +208,6 @@ public class AccessRoles extends AbstractResource {
 
     private UriInfo getUriInfo() {
         return this.uriInfo;
-    }
-
-    /**
-     * Only for UNIT TESTING
-     *
-     * @param uriInfo
-     */
-    public void setUriInfo(final UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
     }
 
 }

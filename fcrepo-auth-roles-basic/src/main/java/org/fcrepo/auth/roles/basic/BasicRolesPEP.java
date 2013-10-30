@@ -46,45 +46,24 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
     private static final Logger log = LoggerFactory
             .getLogger(BasicRolesPEP.class);
 
-    private static Logger clog = LoggerFactory
-            .getLogger("org.fcrepo.auth.CHECK");
+    private static final Logger clog = LoggerFactory
+            .getLogger("org.fcrepo.auth.roles.CHECK");
 
-    private static String AUTHZ_DETECTION = "/{" + Constants.JcrName.NS_URI +
-            "}";
+    private static final String AUTHZ_DETECTION =
+            "/{" + Constants.JcrName.NS_URI + "}";
 
     @Autowired
     AccessRolesProvider accessRolesProvider = null;
 
-    /**
-     * @return the accessRolesProvider
-     */
-    public AccessRolesProvider getAccessRolesProvider() {
-        return accessRolesProvider;
-    }
-
-    /**
-     * @param accessRolesProvider the accessRolesProvider to set
-     */
-    public void setAccessRolesProvider(
-            final AccessRolesProvider accessRolesProvider) {
-        this.accessRolesProvider = accessRolesProvider;
-    }
-
     @Autowired
     private SessionFactory sessionFactory = null;
 
-    /**
-     * @return the sessionFactory
-     */
-    public SessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
 
     /**
-     * @param sessionFactory the sessionFactory to set
+     * @return the accessRolesProvider
      */
-    public void setSessionFactory(final SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    private AccessRolesProvider getAccessRolesProvider() {
+        return accessRolesProvider;
     }
 
     /*
@@ -98,13 +77,13 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
     public boolean hasModeShapePermission(final Path absPath,
             final String[] actions, final Set<Principal> allPrincipals,
             final Principal userPrincipal) {
-        final boolean newNode = false;
+
         Set<String> roles = null;
         try {
             final Session session = sessionFactory.getInternalSession();
             final Node realNode = findRealNode(absPath, session);
             log.debug("using real node: " + realNode);
-            roles = this.getRoles(session, allPrincipals, realNode);
+            roles = this.getRoles(allPrincipals, realNode);
             log.debug("roles for this request: " + roles);
         } catch (final RepositoryException e) {
             throw new Error("Cannot look up node information on " + absPath +
@@ -115,7 +94,7 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
             final StringBuilder msg = new StringBuilder();
             msg.append(roles.toString()).append("\t").append(
                     Arrays.toString(actions)).append("\t").append(
-                    newNode ? "NEW" : "OLD").append("\t").append(
+                    "OLD").append("\t").append(
                     (absPath == null ? absPath : absPath.toString()));
             clog.debug(msg.toString());
             if (actions.length > 1) { // have yet to see more than one
@@ -190,8 +169,8 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
         throw new UnsupportedOperationException();
     }
 
-    private Set<String> getRoles(final Session session,
-            final Set<Principal> principals, final Node node)
+    private Set<String> getRoles(final Set<Principal> principals,
+                                 final Node node)
         throws RepositoryException {
         final Set<String> result = new HashSet<String>();
         final Map<String, List<String>> acl =
