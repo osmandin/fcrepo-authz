@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.auth.roles.basic.integration;
+package org.fcrepo.auth.roles.common.integration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * @author Scott Prater
  */
-public class BasicRolesPepTestObjectBean {
+public class RolesPepTestObjectBean {
 
     private String path;
 
@@ -34,7 +34,7 @@ public class BasicRolesPepTestObjectBean {
 
     private final Map<String, List<Map<String, String>>> datastreamACLs;
 
-    public BasicRolesPepTestObjectBean() {
+    public RolesPepTestObjectBean() {
         this.datastreams = new ArrayList<Map<String, String>>();
         this.acls = new ArrayList<Map<String, String>>();
         this.datastreamACLs = new HashMap<String, List<Map<String, String>>>();

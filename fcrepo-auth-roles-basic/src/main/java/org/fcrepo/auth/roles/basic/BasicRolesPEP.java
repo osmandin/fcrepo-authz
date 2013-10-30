@@ -22,8 +22,6 @@ import java.security.Principal;
 import java.util.Set;
 
 import org.fcrepo.auth.roles.common.AbstractRolesPEP;
-import org.fcrepo.auth.roles.common.Constants;
-import org.modeshape.jcr.value.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +33,6 @@ public class BasicRolesPEP extends AbstractRolesPEP {
     public static final Logger log = LoggerFactory
             .getLogger(BasicRolesPEP.class);
 
-    private static final String AUTHZ_DETECTION =
-            "/{" + Constants.JcrName.NS_URI + "}";
-
     /*
      * (non-Javadoc)
      * @see
@@ -46,7 +41,7 @@ public class BasicRolesPEP extends AbstractRolesPEP {
      * java.security.Principal, java.util.Set)
      */
     @Override
-    public boolean rolesHaveModeShapePermission(final Path absPath,
+    public boolean rolesHaveModeShapePermission(final String absPath,
             final String[] actions, final Set<Principal> allPrincipals,
             final Principal userPrincipal, final Set<String> roles) {
         if (roles.size() == 0) {

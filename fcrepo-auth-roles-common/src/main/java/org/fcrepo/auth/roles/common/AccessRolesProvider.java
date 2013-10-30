@@ -96,8 +96,8 @@ public class AccessRolesProvider {
                     return DEFAULT_ACCESS_ROLES;
                 }
             }
+            return null;
         }
-        return DEFAULT_ACCESS_ROLES;
     }
 
     /**
@@ -156,7 +156,7 @@ public class AccessRolesProvider {
      */
     public void postRoles(final Node node, final Map<String, Set<String>> data)
         throws RepositoryException {
-        Session session = node.getSession();
+        final Session session = node.getSession();
         Constants.registerPrefixes(session);
         if (!node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
             node.addMixin(JcrName.rbaclAssignable.getQualified());
@@ -191,7 +191,7 @@ public class AccessRolesProvider {
      * @param node
      */
     public void deleteRoles(final Node node) throws RepositoryException {
-        Session session = node.getSession();
+        final Session session = node.getSession();
         Constants.registerPrefixes(session);
         if (node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
             // remove rbacl child

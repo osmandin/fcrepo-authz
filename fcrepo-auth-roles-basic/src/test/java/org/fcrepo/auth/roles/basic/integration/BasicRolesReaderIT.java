@@ -21,8 +21,10 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
+import org.fcrepo.auth.roles.common.integration.RolesPepTestObjectBean;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,11 @@ public class BasicRolesReaderIT extends AbstractBasicRolesIT {
             .getLogger(BasicRolesReaderIT.class);
 
     private final static String TESTDS = "readertestds";
+
+    @Override
+    protected List<RolesPepTestObjectBean> getTestObjs() {
+        return test_objs;
+    }
 
     /* Public object, one open datastream */
     @Test
@@ -368,7 +375,7 @@ public class BasicRolesReaderIT extends AbstractBasicRolesIT {
     /* Admin object with public datastream */
     @Test
     public void testReaderCannotReadAdminObj() throws ClientProtocolException,
-            IOException {
+    IOException {
         assertEquals("Reader cannot read testparent2/testchild5WithACL",
                 FORBIDDEN.getStatusCode(), canRead("examplereader",
                         "testparent2/testchild5WithACL", true));
@@ -419,6 +426,47 @@ public class BasicRolesReaderIT extends AbstractBasicRolesIT {
                 FORBIDDEN.getStatusCode(), canAddACL("examplereader",
                         "testparent2/testchild5WithACL/tsc2_data", "everyone",
                         "admin", true));
+    }
+
+    /* Deletions */
+    @Test
+    public void testReaderCannotDeleteOpenObj() throws ClientProtocolException,
+    IOException {
+        assertEquals("Reader cannot delete object testparent3", FORBIDDEN
+                .getStatusCode(), canDelete("examplereader", "testparent3",
+                        true));
+    }
+
+    @Test
+    public void testReaderCannotDeleteOpenObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals("Reader cannot delete datastream testparent3/tsp1_data",
+                FORBIDDEN.getStatusCode(), canDelete("examplereader",
+                        "testparent3/tsp1_data", true));
+    }
+
+    @Test
+    public void testReaderCannotDeleteOpenObjRestrictedDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals("Reader cannot delete datastream testparent3/tsp2_data",
+                FORBIDDEN.getStatusCode(), canDelete("examplereader",
+                        "testparent3/tsp2_data", true));
+    }
+
+    @Test
+    public void testReaderCannotDeleteRestrictedChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals("Reader cannot delete object testparent3/testchild3a",
+                FORBIDDEN.getStatusCode(), canDelete("examplereader",
+                        "testparent3/testchild3a", true));
+    }
+
+    @Test
+    public void testReaderCannotDeleteInheritedACLChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals("Reader cannot delete object testparent3/testchild3b",
+                FORBIDDEN.getStatusCode(), canDelete("examplereader",
+                        "testparent3/testchild3b", true));
     }
 
     /* root node */

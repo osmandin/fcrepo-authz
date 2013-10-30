@@ -23,10 +23,12 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.client.ClientProtocolException;
+import org.fcrepo.auth.roles.common.integration.RolesPepTestObjectBean;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,11 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     private final static String TESTDS = "writertestds";
 
+    @Override
+    protected List<RolesPepTestObjectBean> getTestObjs() {
+        return test_objs;
+    }
+
     /* Public object, one open datastream */
     @Test
     public void testWriterCanReadOpenObj()
@@ -56,7 +63,7 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
     public void testWriterCanWriteDatastreamOnOpenObj()
             throws ClientProtocolException, IOException {
         assertEquals(
-"Writer can write datastream to testparent1", CREATED
+                "Writer can write datastream to testparent1", CREATED
                 .getStatusCode(), canAddDS("examplewriter", "testparent1",
                         TESTDS, true));
     }
@@ -321,8 +328,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     @Test
     public
-            void
-            testWriterCanReadWriterRestrictedChildObjWriterRestrictedDatastream()
+    void
+    testWriterCanReadWriterRestrictedChildObjWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer can read datastream testparent1/testchild4WithACL/tsc1_data",
@@ -332,8 +339,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     @Test
     public
-            void
-            testWriterCanUpdateWriterRestrictedChildObjWriterRestrictedDatastream()
+    void
+    testWriterCanUpdateWriterRestrictedChildObjWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer can update datastream testparent1/testchild4WithACL/tsc1_data",
@@ -343,8 +350,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     @Test
     public
-            void
-            testWriterCannotAddACLToWriterRestrictedChildObjWriterRestrictedDatastream()
+    void
+    testWriterCannotAddACLToWriterRestrictedChildObjWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot add an ACL to datastream testparent1/testchild4WithACL/tsc1_data",
@@ -356,8 +363,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
     /* Even more restricted datastream */
     @Test
     public
-            void
-            testWriterCannotReadWriterRestrictedChildObjReallyWriterRestrictedDatastream()
+    void
+    testWriterCannotReadWriterRestrictedChildObjReallyWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot read datastream testparent1/testchild4WithACL/tsc2_data",
@@ -367,8 +374,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     @Test
     public
-            void
-            testWriterCannotUpdateWriterRestrictedChildObjReallyWriterRestrictedDatastream()
+    void
+    testWriterCannotUpdateWriterRestrictedChildObjReallyWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot update datastream testparent1/testchild4WithACL/tsc2_data",
@@ -378,8 +385,8 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
 
     @Test
     public
-            void
-            testWriterCannotAddACLToWriterRestrictedChildObjReallyWriterRestrictedDatastream()
+    void
+    testWriterCannotAddACLToWriterRestrictedChildObjReallyWriterRestrictedDatastream()
             throws ClientProtocolException, IOException {
         assertEquals(
                 "Writer cannot add an ACL to datastream testparent1/testchild4WithACL/tsc2_data",
@@ -470,6 +477,47 @@ public class BasicRolesWriterIT extends AbstractBasicRolesIT {
                 FORBIDDEN.getStatusCode(), canAddACL("examplewriter",
                         "testparent2/testchild5WithACL/tsc2_data", "everyone",
                         "admin", true));
+    }
+
+    /* Deletions */
+    @Test
+    public void testWriterCannotDeleteOpenObj() throws ClientProtocolException,
+    IOException {
+        assertEquals("Writer cannot delete object testparent3", FORBIDDEN
+                .getStatusCode(), canDelete("examplewriter", "testparent3",
+                        true));
+    }
+
+    @Test
+    public void testWriterCanDeleteOpenObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals("Writer can delete datastream testparent3/tsp1_data",
+                NO_CONTENT.getStatusCode(), canDelete("examplewriter",
+                        "testparent3/tsp1_data", true));
+    }
+
+    @Test
+    public void testWriterCannotDeleteOpenObjRestrictedDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals("Writer cannot delete datastream testparent3/tsp2_data",
+                FORBIDDEN.getStatusCode(), canDelete("examplewriter",
+                        "testparent3/tsp2_data", true));
+    }
+
+    @Test
+    public void testWriterCannotDeleteRestrictedChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals("Writer cannot delete object testparent3/testchild3a",
+                FORBIDDEN.getStatusCode(), canDelete("examplewriter",
+                        "testparent3/testchild3a", true));
+    }
+
+    @Test
+    public void testWriterCanDeleteInheritedACLChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals("Writer can delete object testparent3/testchild3b",
+                NO_CONTENT.getStatusCode(), canDelete("examplewriter",
+                        "testparent3/testchild3b", true));
     }
 
     /* root node */

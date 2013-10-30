@@ -18,13 +18,16 @@ package org.fcrepo.auth.roles.basic.integration;
 
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
+import org.fcrepo.auth.roles.common.integration.RolesPepTestObjectBean;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +44,11 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
             .getLogger(BasicRolesAdminIT.class);
 
     private final static String TESTDS = "admintestds";
+
+    @Override
+    protected List<RolesPepTestObjectBean> getTestObjs() {
+        return test_objs;
+    }
 
     /* Public object, one open datastream */
     @Test
@@ -472,6 +480,47 @@ public class BasicRolesAdminIT extends AbstractBasicRolesIT {
                 FORBIDDEN.getStatusCode(), canAddACL("exampleadmin",
                         "testparent2/testchild5WithACL/tsc2_data", "EVERYONE",
                         "admin", true));
+    }
+
+    /* Deletions */
+    @Test
+    public void testAdminCanDeleteOpenObjAndItsDescendants()
+            throws ClientProtocolException, IOException {
+        assertEquals("Admin can delete object testparent3", NO_CONTENT
+                .getStatusCode(),
+                canDelete("exampleadmin", "testparent3", true));
+
+        assertEquals("Admin does not have permission to try to read deleted datastream testparent3/tsp1_data",
+                FORBIDDEN.getStatusCode(), canDelete("exampleadmin",
+                        "testparent3/tsp1_data", true));
+
+        assertEquals("Admin does not have permission to try to read deleted datastream testparent3/tsp2_data",
+                FORBIDDEN.getStatusCode(), canDelete("exampleadmin",
+                        "testparent3/tsp2_data", true));
+
+        assertEquals("Admin does not have permission to try to read deleted object testparent3/testchild3a",
+                FORBIDDEN.getStatusCode(), canDelete("exampleadmin",
+                        "testparent3/testchild3a", true));
+
+        assertEquals("Admin does not have permission to try to read deleted object testparent3/testchild3b",
+                FORBIDDEN.getStatusCode(), canDelete("exampleadmin",
+                        "testparent3/testchild3b", true));
+
+        assertEquals("Fedora Admin cannot read deleted datastream testparent3/tsp1_data",
+                NOT_FOUND.getStatusCode(), canDelete("fedoraAdmin",
+                        "testparent3/tsp1_data", true));
+
+        assertEquals("Fedora Admin cannot read deleted datastream testparent3/tsp2_data",
+                NOT_FOUND.getStatusCode(), canDelete("fedoraAdmin",
+                        "testparent3/tsp2_data", true));
+
+        assertEquals("Fedora Admin cannot read deleted object testparent3/testchild3a",
+                NOT_FOUND.getStatusCode(), canDelete("fedoraAdmin",
+                        "testparent3/testchild3a", true));
+
+        assertEquals("Fedora Admin cannot read deleted object testparent3/testchild3b",
+                NOT_FOUND.getStatusCode(), canDelete("fedoraAdmin",
+                        "testparent3/testchild3b", true));
     }
 
     /* root node */

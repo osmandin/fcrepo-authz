@@ -33,7 +33,6 @@ import org.jboss.security.xacml.factories.RequestAttributeFactory;
 import org.jboss.security.xacml.factories.RequestResponseContextFactory;
 import org.jboss.security.xacml.interfaces.RequestContext;
 import org.jboss.security.xacml.interfaces.ResponseContext;
-import org.modeshape.jcr.value.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +62,7 @@ public class FedoraXacmlPEP extends AbstractRolesPEP {
      * .modeshape.jcr.value.Path, java.lang.String[], java.util.Set)
      */
     @Override
-    public boolean rolesHaveModeShapePermission(final Path absPath,
+    public boolean rolesHaveModeShapePermission(final String absPath,
             final String[] actions, final Set<Principal> allPrincipals,
             final Principal userPrincipal, final Set<String> roles) {
         final RequestType request = new RequestType();
@@ -116,13 +115,13 @@ public class FedoraXacmlPEP extends AbstractRolesPEP {
      * @param absPath
      * @return
      */
-    private ResourceType createResource(final Path absPath) {
+    private ResourceType createResource(final String absPath) {
         final ResourceType resourceType = new ResourceType();
 
         final AttributeType attResourceID =
                 RequestAttributeFactory.createStringAttributeType(
                         "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
-                        null, absPath.getString());
+                        null, absPath);
         resourceType.getAttribute().add(attResourceID);
         return resourceType;
     }

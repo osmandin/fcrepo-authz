@@ -106,7 +106,7 @@ public class AccessRoles extends AbstractResource {
             final Map<String, List<String>> data =
                     this.getAccessRolesProvider().getRoles(node,
                             (effective != null));
-            if (effective == null && data.isEmpty()) {
+            if (data == null) {
                 log.debug("no content response");
                 response = Response.noContent();
             } else {

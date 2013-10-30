@@ -21,8 +21,10 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
+import org.fcrepo.auth.roles.common.integration.RolesPepTestObjectBean;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,11 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
             .getLogger(BasicRolesPepUnauthenticatedUserIT.class);
 
     private final static String TESTDS = "uutestds";
+
+    @Override
+    protected List<RolesPepTestObjectBean> getTestObjs() {
+        return test_objs;
+    }
 
     /* Public object, one open datastream */
     @Test
@@ -315,13 +322,59 @@ public class BasicRolesPepUnauthenticatedUserIT extends AbstractBasicRolesIT {
 
     @Test
     public void
-            testUnauthenticatedReaderCannotAddACLToAdminObjPublicDatastream()
-                    throws ClientProtocolException, IOException {
+    testUnauthenticatedReaderCannotAddACLToAdminObjPublicDatastream()
+            throws ClientProtocolException, IOException {
         assertEquals(
                 "Unauthenticated user cannot add an ACL to datastream testparent2/testchild5WithACL/tsc2_data",
                 FORBIDDEN.getStatusCode(), canAddACL(null,
                         "testparent2/testchild5WithACL/tsc2_data", "everyone",
                         "admin", false));
+    }
+
+    /* Deletions */
+    @Test
+    public void testUnauthenticatedReaderCannotDeleteOpenObj()
+            throws ClientProtocolException, IOException {
+        assertEquals("Unauthenticated user cannot delete testparent3",
+                FORBIDDEN.getStatusCode(),
+                canDelete(null, "testparent3", false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCannotDeleteOpenObjPublicDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot delete datastream testparent3/tsp1_data",
+                FORBIDDEN.getStatusCode(), canDelete(null,
+                        "testparent3/tsp1_data", false));
+    }
+
+    @Test
+    public void
+    testUnauthenticatedReaderCannotDeleteOpenObjRestrictedDatastream()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot delete datastream testparent3/tsp2_data",
+                FORBIDDEN.getStatusCode(), canDelete(null,
+                        "testparent3/tsp2_data", false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCannotDeleteRestrictedChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot delete object testparent3/testchild3a",
+                FORBIDDEN.getStatusCode(), canDelete(null,
+                        "testparent3/testchild3a", false));
+    }
+
+    @Test
+    public void testUnauthenticatedReaderCannotDeleteInheritedACLChildObj()
+            throws ClientProtocolException, IOException {
+        assertEquals(
+                "Unauthenticated user cannot delete object testparent3/testchild3b",
+                FORBIDDEN.getStatusCode(), canDelete(null,
+                        "testparent3/testchild3b", false));
     }
 
     /* root node */
