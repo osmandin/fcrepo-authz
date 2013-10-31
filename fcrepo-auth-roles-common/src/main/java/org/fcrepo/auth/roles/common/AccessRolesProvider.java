@@ -31,9 +31,9 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
 
 import org.fcrepo.auth.roles.common.Constants.JcrName;
+import org.modeshape.jcr.value.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -78,14 +78,15 @@ public class AccessRolesProvider {
                         if (node.isNodeType(JcrName.rbaclAssignable
                                 .getQualified())) {
                             if (log.isDebugEnabled()) {
-                                log.debug("effective roles are assigned at node: " +
+                                log.debug(
+                                        "effective roles are assigned at node: {}",
                                         node.getPath());
                             }
                             getAssignments(node, data);
                             if (log.isDebugEnabled()) {
                                 for (final String key : data.keySet()) {
-                                    log.debug(key + " has role(s) " +
-                                            data.get(key));
+                                    log.debug("{} has role(s) {}", key, data
+                                            .get(key));
                                 }
                             }
                             return data;
@@ -96,22 +97,22 @@ public class AccessRolesProvider {
                 }
             }
         }
-        return Collections.emptyMap();
+        return DEFAULT_ACCESS_ROLES;
     }
 
     /**
      * @param node
      * @param data
      * @throws RepositoryException
-     * @throws ValueFormatException
      */
     private void getAssignments(final Node node,
-            final Map<String, List<String>> data) throws ValueFormatException,
-            RepositoryException {
+            final Map<String, List<String>> data)
+        throws RepositoryException {
+
         if (node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
             try {
                 final Node rbacl = node.getNode(JcrName.rbacl.getQualified());
-                log.debug("got rbacl: " + rbacl);
+                log.debug("got rbacl: {}", rbacl);
                 for (final NodeIterator ni = rbacl.getNodes(); ni.hasNext();) {
                     final Node assign = ni.nextNode();
                     final String principalName =
@@ -119,28 +120,28 @@ public class AccessRolesProvider {
                                     .getString();
                     if (principalName == null ||
                             principalName.trim().length() == 0) {
-                        log.warn("found empty principal name on node " +
+                        log.warn("found empty principal name on node {}",
                                 node.getPath());
-                        continue;
-                    }
-                    List<String> roles = data.get(principalName);
-                    if (roles == null) {
-                        roles = new ArrayList<String>();
-                        data.put(principalName, roles);
-                    }
-                    for (final Value v : assign.getProperty(
-                            JcrName.role.getQualified()).getValues()) {
-                        if (v == null || v.toString().trim().length() == 0) {
-                            log.warn("found empty role name on node " +
-                                    node.getPath());
-                            continue;
+                    } else {
+                        List<String> roles = data.get(principalName);
+                        if (roles == null) {
+                            roles = new ArrayList<String>();
+                            data.put(principalName, roles);
                         }
-                        roles.add(v.toString());
+                        for (final Value v : assign.getProperty(
+                                JcrName.role.getQualified()).getValues()) {
+                            if (v == null || v.toString().trim().length() == 0) {
+                                log.warn("found empty role name on node {}",
+                                        node.getPath());
+                            } else {
+                                roles.add(v.toString());
+                            }
+                        }
                     }
                 }
             } catch (final PathNotFoundException e) {
                 log.error(
-                        "Found rbaclAssignable mixin without a corresponding node at " +
+                        "Found rbaclAssignable mixin without a corresponding node at {}",
                                 node.getPath(),
                         e);
             }
@@ -155,8 +156,7 @@ public class AccessRolesProvider {
      */
     public void postRoles(final Node node, final Map<String, Set<String>> data)
         throws RepositoryException {
-        Session session;
-        session = node.getSession();
+        Session session = node.getSession();
         Constants.registerPrefixes(session);
         if (!node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
             node.addMixin(JcrName.rbaclAssignable.getQualified());
@@ -191,8 +191,7 @@ public class AccessRolesProvider {
      * @param node
      */
     public void deleteRoles(final Node node) throws RepositoryException {
-        Session session;
-        session = node.getSession();
+        Session session = node.getSession();
         Constants.registerPrefixes(session);
         if (node.isNodeType(JcrName.rbaclAssignable.getQualified())) {
             // remove rbacl child
@@ -204,6 +203,31 @@ public class AccessRolesProvider {
             // remove mixin
             node.removeMixin(JcrName.rbaclAssignable.getQualified());
         }
+    }
+
+    /**
+     * Finds effective roles assigned to a path, using first real ancestor node.
+     *
+     * @param absPath the real or potential node path
+     * @return the roles assigned to each principal
+     * @throws RepositoryException
+     */
+    public Map<String, List<String>> findRolesForPath(final Path absPath,
+            final Session session) throws RepositoryException {
+        Node node = null;
+        for (Path p = absPath; p != null; p = p.getParent()) {
+            try {
+                if (p.isRoot()) {
+                    node = session.getRootNode();
+                } else {
+                    node = session.getNode(p.getString());
+                }
+                break;
+            } catch (final PathNotFoundException e) {
+                log.warn("Cannot find node: {}", p);
+            }
+        }
+        return this.getRoles(node, true);
     }
 
 }

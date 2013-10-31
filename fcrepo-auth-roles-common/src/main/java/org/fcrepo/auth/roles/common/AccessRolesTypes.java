@@ -44,23 +44,9 @@ public class AccessRolesTypes {
     @Autowired
     private SessionFactory sessionFactory = null;
 
-    /**
-     * @return the sessionFactory
-     */
-    public SessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
-
-    /**
-     * @param sessionFactory the sessionFactory to set
-     */
-    public void setSessionFactory(final SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
-
     private static boolean registered = false;
 
-    private static Object mutex = new Object();
+    private static final Object mutex = new Object();
 
     /**
      * Initialize, register role assignment node types.
@@ -93,7 +79,7 @@ public class AccessRolesTypes {
                             mgr.registerNodeTypes(cnd, true);
                     while (nti.hasNext()) {
                         final NodeType nt = nti.nextNodeType();
-                        log.debug("registered node type:" + nt.getName());
+                        log.debug("registered node type: {}", nt.getName());
                     }
                     session.save();
                     registered = true;

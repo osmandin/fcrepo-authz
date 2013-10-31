@@ -16,114 +16,39 @@
 
 package org.fcrepo.auth.roles.basic;
 
+
+
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
-import org.fcrepo.auth.FedoraPolicyEnforcementPoint;
-import org.fcrepo.auth.roles.common.AccessRolesProvider;
+import org.fcrepo.auth.roles.common.AbstractRolesPEP;
 import org.fcrepo.auth.roles.common.Constants;
-import org.fcrepo.http.commons.session.SessionFactory;
 import org.modeshape.jcr.value.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Gregory Jansen
  */
-public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
+public class BasicRolesPEP extends AbstractRolesPEP {
 
-    private static final Logger log = LoggerFactory
+    public static final Logger log = LoggerFactory
             .getLogger(BasicRolesPEP.class);
 
-    private static Logger clog = LoggerFactory
-            .getLogger("org.fcrepo.auth.CHECK");
-
-    private static String AUTHZ_DETECTION = "/{" + Constants.JcrName.NS_URI +
-            "}";
-
-    @Autowired
-    AccessRolesProvider accessRolesProvider = null;
-
-    /**
-     * @return the accessRolesProvider
-     */
-    public AccessRolesProvider getAccessRolesProvider() {
-        return accessRolesProvider;
-    }
-
-    /**
-     * @param accessRolesProvider the accessRolesProvider to set
-     */
-    public void setAccessRolesProvider(
-            final AccessRolesProvider accessRolesProvider) {
-        this.accessRolesProvider = accessRolesProvider;
-    }
-
-    @Autowired
-    private SessionFactory sessionFactory = null;
-
-    /**
-     * @return the sessionFactory
-     */
-    public SessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
-
-    /**
-     * @param sessionFactory the sessionFactory to set
-     */
-    public void setSessionFactory(final SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    private static final String AUTHZ_DETECTION =
+            "/{" + Constants.JcrName.NS_URI + "}";
 
     /*
      * (non-Javadoc)
      * @see
-     * org.fcrepo.auth.FedoraPolicyEnforcementPoint#hasModeShapePermission(org
-     * .modeshape.jcr.value.Path, java.lang.String[], java.util.Set,
-     * java.security.Principal)
+     * org.fcrepo.auth.roles.AbstractRolesPEP#hasModeShapePermission(org.modeshape
+     * .jcr.value.Path, java.lang.String[], java.util.Set,
+     * java.security.Principal, java.util.Set)
      */
     @Override
-    public boolean hasModeShapePermission(final Path absPath,
+    public boolean rolesHaveModeShapePermission(final Path absPath,
             final String[] actions, final Set<Principal> allPrincipals,
-            final Principal userPrincipal) {
-        final boolean newNode = false;
-        Set<String> roles = null;
-        try {
-            final Session session = sessionFactory.getInternalSession();
-            final Node realNode = findRealNode(absPath, session);
-            log.debug("using real node: " + realNode);
-            roles = this.getRoles(session, allPrincipals, realNode);
-            log.debug("roles for this request: " + roles);
-        } catch (final RepositoryException e) {
-            throw new Error("Cannot look up node information on " + absPath +
-                    " for permissions check.", e);
-        }
-
-        if (clog.isDebugEnabled()) {
-            final StringBuilder msg = new StringBuilder();
-            msg.append(roles.toString()).append("\t").append(
-                    Arrays.toString(actions)).append("\t").append(
-                    newNode ? "NEW" : "OLD").append("\t").append(
-                    (absPath == null ? absPath : absPath.toString()));
-            clog.debug(msg.toString());
-            if (actions.length > 1) { // have yet to see more than one
-                clog.debug("FOUND MULTIPLE ACTIONS: " +
-                        Arrays.toString(actions));
-            }
-        }
-
+            final Principal userPrincipal, final Set<String> roles) {
         if (roles.size() == 0) {
             log.debug("A caller without content roles can do nothing in the repository.");
             return false;
@@ -150,61 +75,10 @@ public class BasicRolesPEP implements FedoraPolicyEnforcementPoint {
                 return false;
             }
         }
-        log.error("There are roles in session that aren't recognized by this PEP: " +
+        log.error(
+                "There are roles in session that aren't recognized by this PEP: {}",
                 roles);
         return false;
-    }
-
-    /**
-     * @param absPath
-     * @return
-     * @throws RepositoryException
-     */
-    private Node findRealNode(final Path absPath, final Session session)
-        throws RepositoryException {
-        Node result = null;
-        for (Path p = absPath; p != null; p = p.getParent()) {
-            try {
-                if (p.isRoot()) {
-                    result = session.getRootNode();
-                } else {
-                    result = session.getNode(p.getString());
-                }
-                break;
-            } catch (final PathNotFoundException e) {
-                log.warn("Cannot find node: " + p);
-            }
-        }
-        return result;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see
-     * org.fcrepo.auth.FedoraPolicyEnforcementPoint#filterPathsForReading(java
-     * .util.Collection, java.util.Set, java.security.Principal)
-     */
-    @Override
-    public Iterator<Path> filterPathsForReading(final Iterator<Path> paths,
-            final Set<Principal> allPrincipals, final Principal userPrincipal) {
-        throw new UnsupportedOperationException();
-    }
-
-    private Set<String> getRoles(final Session session,
-            final Set<Principal> principals, final Node node)
-        throws RepositoryException {
-        final Set<String> result = new HashSet<String>();
-        final Map<String, List<String>> acl =
-                this.getAccessRolesProvider().getRoles(node, true);
-        for (final Principal p : principals) {
-            final List<String> roles = acl.get(p.getName());
-            if (roles != null) {
-                log.debug("request principal matched role assignment: " +
-                        p.getName());
-                result.addAll(roles);
-            }
-        }
-        return result;
     }
 
 }

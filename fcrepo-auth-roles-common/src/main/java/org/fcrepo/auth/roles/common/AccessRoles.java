@@ -73,40 +73,16 @@ public class AccessRoles extends AbstractResource {
     @Autowired
     private AccessRolesProvider accessRolesProvider = null;
 
-    @Autowired
-    private AccessRolesTypes accessRolesTypes = null;
+    @Context
+    protected HttpServletRequest request;
 
-    /**
-     * @return the accessRolesTypes
-     */
-    public AccessRolesTypes getAccessRolesTypes() {
-        return accessRolesTypes;
-    }
-
-    /**
-     * @param accessRolesTypes the accessRolesTypes to set
-     */
-    public void setAccessRolesTypes(final AccessRolesTypes accessRolesTypes) {
-        this.accessRolesTypes = accessRolesTypes;
-    }
 
     /**
      * @return the accessRolesProvider
      */
-    public AccessRolesProvider getAccessRolesProvider() {
+    private AccessRolesProvider getAccessRolesProvider() {
         return accessRolesProvider;
     }
-
-    /**
-     * @param accessRolesProvider the accessRolesProvider to set
-     */
-    public void setAccessRolesProvider(
-            final AccessRolesProvider accessRolesProvider) {
-        this.accessRolesProvider = accessRolesProvider;
-    }
-
-    @Context
-    protected HttpServletRequest request;
 
     /**
      * Retrieve the roles assigned to each principal on this specific path.
@@ -123,7 +99,7 @@ public class AccessRoles extends AbstractResource {
         final String effective) throws Exception {
         final String path = toPath(pathList);
         log.debug("Get access roles for: {}", path);
-        log.debug("effective: " + effective);
+        log.debug("effective: {}", effective);
         Response.ResponseBuilder response;
         try {
             final Node node = nodeService.getObject(session, path).getNode();
@@ -139,7 +115,7 @@ public class AccessRoles extends AbstractResource {
         } catch (final PathNotFoundException e) {
             response = Response.status(404).entity(e.getMessage());
         } catch (final AccessDeniedException e) {
-            return Response.status(Status.FORBIDDEN).build();
+            response = Response.status(Status.FORBIDDEN);
         } finally {
             session.logout();
         }
@@ -232,15 +208,6 @@ public class AccessRoles extends AbstractResource {
 
     private UriInfo getUriInfo() {
         return this.uriInfo;
-    }
-
-    /**
-     * Only for UNIT TESTING
-     *
-     * @param uriInfo
-     */
-    public void setUriInfo(final UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
     }
 
 }
